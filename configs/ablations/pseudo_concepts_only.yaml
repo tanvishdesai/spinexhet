@@ -1,0 +1,14 @@
+base_config: ../spinexnet.yaml
+experiment_name: ablation_pseudo_concepts_only
+
+data:
+  concept_columns:
+    - concept_pseudo_pathology_present
+    - concept_pseudo_severe_grade
+    - concept_pseudo_left_laterality
+    - concept_pseudo_right_laterality
+    - concept_pseudo_adjacent_pathology_density
+
+model:
+  num_concepts: 5
+

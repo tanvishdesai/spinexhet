@@ -1,0 +1,26 @@
+base_config: ../base.yaml
+experiment_name: baseline_densenet121
+
+model:
+  type: baseline
+  backbone: densenet121
+  pretrained: true
+  num_classes: 3
+  meta_dim: 16
+  hidden_dim: 256
+  dropout: 0.2
+  ordinal: true
+
+training:
+  epochs: 20
+  batch_size: 16
+  val_batch_size: 16
+  grad_accum: 2
+
+loss:
+  class_weights: auto
+  classification: 1.0
+  concept: 0.0
+  prototype_cluster: 0.0
+  prototype_diversity: 0.0
+  ordinal: 0.2

@@ -1,0 +1,6 @@
+base_config: ../spinexnet.yaml
+experiment_name: ablation_resnet50_backbone
+
+model:
+  backbone: resnet50
+

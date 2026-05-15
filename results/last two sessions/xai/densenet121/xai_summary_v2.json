@@ -1,0 +1,69 @@
+{
+  "summary": {
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.5385949534943016,
+        "insertion_auc": 0.7859283577351598
+      },
+      "gradcam++": {
+        "deletion_auc": 0.5609698832970657,
+        "insertion_auc": 0.7638484754686943
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.5485093983098631,
+        "insertion_auc": 0.758531968280091
+      }
+    },
+    "mean_spearman": 0.4894908929388774,
+    "mean_top20_iou": 0.47890957114980315,
+    "clinical_alignment": {
+      "gradcam": 0.3235534219199099,
+      "gradcam++": 0.32590515455340474,
+      "integrated_gradients": 0.22881033584863725
+    },
+    "clinical_alignment_by_condition": {
+      "gradcam": {
+        "left_neural_foraminal_narrowing": 0.3388216612206197,
+        "left_subarticular_stenosis": 0.2693601134269447,
+        "right_neural_foraminal_narrowing": 0.39345418918001296,
+        "right_subarticular_stenosis": 0.2756493899309527,
+        "spinal_canal_stenosis": 0.34048175584101953
+      },
+      "gradcam++": {
+        "left_neural_foraminal_narrowing": 0.3377170579232954,
+        "left_subarticular_stenosis": 0.22405282617051134,
+        "right_neural_foraminal_narrowing": 0.4032509911413736,
+        "right_subarticular_stenosis": 0.27328911776442105,
+        "spinal_canal_stenosis": 0.3912157797674223
+      },
+      "integrated_gradients": {
+        "left_neural_foraminal_narrowing": 0.22471075978549834,
+        "left_subarticular_stenosis": 0.24061695546125514,
+        "right_neural_foraminal_narrowing": 0.16774126334048248,
+        "right_subarticular_stenosis": 0.2439763626416323,
+        "spinal_canal_stenosis": 0.26700633801431795
+      }
+    }
+  },
+  "skipped": {},
+  "args": {
+    "config": "/kaggle/input/datasets/vasuaashadesai/baselines-models-spinexnet/outputs/baseline_densenet121/fold_0/config.yaml",
+    "checkpoint": "/kaggle/input/datasets/vasuaashadesai/baselines-models-spinexnet/outputs/baseline_densenet121/fold_0/best.pt",
+    "manifest": "/kaggle/input/datasets/vasuaashadesai/manifests-of-spinexnet/manifests/manifest_v2.csv",
+    "fold": 0,
+    "output_dir": "/kaggle/working/xai/densenet121",
+    "max_samples": 300,
+    "methods": [
+      "gradcam",
+      "gradcam++",
+      "integrated_gradients"
+    ],
+    "faithfulness_steps": 20,
+    "crop_root": null,
+    "cache_dir": "/kaggle/input/datasets/vasuaashadesai/pre-processed-crop-224/image_cache_224",
+    "save_maps": false,
+    "consistency_augmentations": 3,
+    "skip_consistency": true,
+    "skip_faithfulness": false
+  }
+}

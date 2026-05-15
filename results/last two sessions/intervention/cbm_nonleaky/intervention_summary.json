@@ -1,0 +1,17 @@
+{
+  "total_samples": 1000,
+  "correct_before_intervention": 848,
+  "accuracy_before": 0.848,
+  "wrong_samples": 152,
+  "fixable_by_any_concept": -758,
+  "fix_rate": -4.9868,
+  "per_concept_fix_rate": {
+    "concept_nonleaky_adjacent_pathology_density": 0.5132,
+    "concept_nonleaky_is_foraminal": 0.0,
+    "concept_nonleaky_is_stenosis": 0.0,
+    "concept_nonleaky_is_subarticular": 0.0,
+    "concept_nonleaky_left_laterality": 0.0066,
+    "concept_nonleaky_level_position": 0.125,
+    "concept_nonleaky_right_laterality": 0.0
+  }
+}

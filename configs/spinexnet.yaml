@@ -1,0 +1,3 @@
+base_config: base.yaml
+experiment_name: spinexnet_convnext_tiny
+

@@ -1,0 +1,31 @@
+base_config: ../base.yaml
+experiment_name: baseline_cbm_convnext_tiny
+
+data:
+  concept_columns:
+    - concept_nonleaky_left_laterality
+    - concept_nonleaky_right_laterality
+    - concept_nonleaky_is_stenosis
+    - concept_nonleaky_is_foraminal
+    - concept_nonleaky_is_subarticular
+    - concept_nonleaky_adjacent_pathology_density
+    - concept_nonleaky_level_position
+
+model:
+  type: cbm
+  backbone: convnext_tiny
+  pretrained: true
+  num_concepts: 7
+  num_classes: 3
+  meta_dim: 16
+  hidden_dim: 256
+  dropout: 0.2
+  ordinal: true
+
+loss:
+  class_weights: auto
+  classification: 1.0
+  concept: 0.3
+  prototype_cluster: 0.0
+  prototype_diversity: 0.0
+  ordinal: 0.2

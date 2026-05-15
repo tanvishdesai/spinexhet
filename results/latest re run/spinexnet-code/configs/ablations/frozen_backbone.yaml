@@ -1,0 +1,6 @@
+base_config: ../spinexnet.yaml
+experiment_name: ablation_frozen_backbone
+
+training:
+  backbone_lr: 0.0
+

@@ -1,0 +1,9 @@
+base_config: ../spinexnet.yaml
+experiment_name: ablation_without_ordinal
+
+model:
+  ordinal: false
+
+loss:
+  ordinal: 0.0
+
