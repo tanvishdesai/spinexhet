@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.32680145680280404,
+    "mean_spearman_ci": [
+      0.311,
+      0.3422
+    ],
+    "mean_top20_iou": 0.32509177335615563,
+    "mean_top20_iou_ci": [
+      0.3165,
+      0.3334
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.12782915232159245,
+        "insertion_auc": 0.2200478511293393
+      },
+      "gradcam++": {
+        "deletion_auc": 0.1283165573897041,
+        "insertion_auc": 0.240009064426665
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.052448837323552586,
+        "insertion_auc": 0.3603526071464811
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.0681432025691168,
+        "insertion_auc": 0.32267944549222266
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.051658525927466,
+        "insertion_auc": 0.3605478061101893
+      },
+      "occlusion": {
+        "deletion_auc": 0.058487223872554554,
+        "insertion_auc": 0.36895257497636136
+      }
+    }
+  },
+  "args": {
+    "model": "convnext_blackbox",
+    "checkpoint": "/kaggle/working/cub_outputs/convnext_blackbox/fold_4/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "4",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_4/convnext_blackbox",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

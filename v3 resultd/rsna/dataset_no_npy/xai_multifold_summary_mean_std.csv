@@ -1,0 +1,10 @@
+,mean_spearman,mean_spearman,mean_top20_iou,mean_top20_iou,consensus_insertion_auc_mean,consensus_insertion_auc_mean,consensus_expert_roi_mean,consensus_expert_roi_mean
+,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,
+cbm_leaky,0.3471,0.0647,0.3498,0.0383,0.8004,0.036,0.248,0.0167
+cbm_nonleaky,0.3798,0.0336,0.3451,0.0193,0.8263,0.0342,0.2641,0.0173
+convnext_blackbox,0.2826,0.0392,0.3257,0.0262,0.8101,0.0196,0.2448,0.0143
+densenet121,0.434,0.0234,0.3849,0.0141,0.8079,0.0243,0.2752,0.0019
+efficientnet_b4,0.2232,0.0134,0.2307,0.0084,0.7652,0.0731,0.2597,0.0063
+resnet50,0.4117,0.0226,0.3294,0.0152,0.7875,0.0352,0.265,0.0082
+vit_small,0.1996,0.0281,0.2391,0.0206,0.7712,0.0304,0.2095,0.0134

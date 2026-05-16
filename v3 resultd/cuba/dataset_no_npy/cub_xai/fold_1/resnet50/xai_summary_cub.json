@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.41905685694581035,
+    "mean_spearman_ci": [
+      0.3885,
+      0.4478
+    ],
+    "mean_top20_iou": 0.3714994151004306,
+    "mean_top20_iou_ci": [
+      0.3574,
+      0.3853
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.16563747456040318,
+        "insertion_auc": 0.5673763204497263
+      },
+      "gradcam++": {
+        "deletion_auc": 0.20795972366994284,
+        "insertion_auc": 0.5185754600687397
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.051813729624051126,
+        "insertion_auc": 0.6065794991650652
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.05471201962507302,
+        "insertion_auc": 0.5761398402373367
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.05656062822784468,
+        "insertion_auc": 0.5940335523655849
+      },
+      "occlusion": {
+        "deletion_auc": 0.10341438966066926,
+        "insertion_auc": 0.6477649563254272
+      }
+    }
+  },
+  "args": {
+    "model": "resnet50",
+    "checkpoint": "/kaggle/working/cub_outputs/resnet50/fold_1/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "1",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_1/resnet50",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

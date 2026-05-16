@@ -1,0 +1,32 @@
+[
+  {
+    "model": "resnet50",
+    "mean_gradient_entropy": 10.3374,
+    "gradient_locality_score": 0.096736,
+    "n_samples": 300
+  },
+  {
+    "model": "densenet121",
+    "mean_gradient_entropy": 10.1951,
+    "gradient_locality_score": 0.098086,
+    "n_samples": 300
+  },
+  {
+    "model": "convnext_blackbox",
+    "mean_gradient_entropy": 9.9593,
+    "gradient_locality_score": 0.100409,
+    "n_samples": 300
+  },
+  {
+    "model": "efficientnet_b4",
+    "mean_gradient_entropy": 10.4195,
+    "gradient_locality_score": 0.095974,
+    "n_samples": 300
+  },
+  {
+    "model": "vit_small",
+    "mean_gradient_entropy": 9.9815,
+    "gradient_locality_score": 0.100185,
+    "n_samples": 300
+  }
+]

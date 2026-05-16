@@ -1,0 +1,72 @@
+[
+  {
+    "model": "resnet50",
+    "n_samples": 300,
+    "feature_autocorrelation": 0.6476197532715842,
+    "feature_autocorrelation_std": 0.055654218687275804,
+    "feature_total_variation": 0.5562010439352618,
+    "feature_total_variation_std": 0.042368657399860864,
+    "feature_entropy_norm": 0.7671642599220655,
+    "feature_entropy_norm_std": 0.041570129986812684,
+    "feature_coherence_score": 0.416827164411465,
+    "feature_coherence_score_std": 0.04076026894228393,
+    "feature_fragmentation_score": 0.4281113441545006,
+    "feature_fragmentation_score_std": 0.053634556996366725
+  },
+  {
+    "model": "densenet121",
+    "n_samples": 300,
+    "feature_autocorrelation": 0.6761995642492971,
+    "feature_autocorrelation_std": 0.05850555781143849,
+    "feature_total_variation": 0.574799540924384,
+    "feature_total_variation_std": 0.0567613673011394,
+    "feature_entropy_norm": 0.8012883766869822,
+    "feature_entropy_norm_std": 0.0464773573856596,
+    "feature_coherence_score": 0.4307563743671066,
+    "feature_coherence_score_std": 0.046742145686755165,
+    "feature_fragmentation_score": 0.46263779254360915,
+    "feature_fragmentation_score_std": 0.07001691553941763
+  },
+  {
+    "model": "convnext_blackbox",
+    "n_samples": 300,
+    "feature_autocorrelation": 0.3141781957644013,
+    "feature_autocorrelation_std": 0.13676844671644578,
+    "feature_total_variation": 0.5219446900800748,
+    "feature_total_variation_std": 0.040583685956709234,
+    "feature_entropy_norm": 0.7247720086643625,
+    "feature_entropy_norm_std": 0.054964258586891496,
+    "feature_coherence_score": 0.2049381684395976,
+    "feature_coherence_score_std": 0.08681419761443027,
+    "feature_fragmentation_score": 0.38004559748429423,
+    "feature_fragmentation_score_std": 0.053390173216877286
+  },
+  {
+    "model": "efficientnet_b4",
+    "n_samples": 300,
+    "feature_autocorrelation": -0.009277311440251505,
+    "feature_autocorrelation_std": 0.04492072368242965,
+    "feature_total_variation": 0.38757104157767763,
+    "feature_total_variation_std": 0.06441827756362978,
+    "feature_entropy_norm": 0.8789618151613358,
+    "feature_entropy_norm_std": 0.024622136324585365,
+    "feature_coherence_score": -0.007858696162831517,
+    "feature_coherence_score_std": 0.0315106572866839,
+    "feature_fragmentation_score": 0.3417878439469806,
+    "feature_fragmentation_score_std": 0.06401476038163281
+  },
+  {
+    "model": "vit_small",
+    "n_samples": 300,
+    "feature_autocorrelation": 0.687324096136156,
+    "feature_autocorrelation_std": 0.10827525902387235,
+    "feature_total_variation": 0.5209395736675885,
+    "feature_total_variation_std": 0.1144713567675462,
+    "feature_entropy_norm": 0.9893529724571188,
+    "feature_entropy_norm_std": 0.008745701869200484,
+    "feature_coherence_score": 0.45863482022166674,
+    "feature_coherence_score_std": 0.09712267647346663,
+    "feature_fragmentation_score": 0.515067940405402,
+    "feature_fragmentation_score_std": 0.1118436355894994
+  }
+]

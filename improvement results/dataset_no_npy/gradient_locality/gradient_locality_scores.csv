@@ -1,0 +1,6 @@
+model,mean_gradient_entropy,gradient_locality_score,n_samples
+resnet50,10.3374,0.096736,300
+densenet121,10.1951,0.098086,300
+convnext_blackbox,9.9593,0.100409,300
+efficientnet_b4,10.4195,0.095974,300
+vit_small,9.9815,0.100185,300

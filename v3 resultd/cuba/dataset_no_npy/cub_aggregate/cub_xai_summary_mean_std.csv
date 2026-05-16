@@ -1,0 +1,8 @@
+,mean_spearman,mean_spearman,mean_top20_iou,mean_top20_iou
+,mean,std,mean,std
+model,,,,
+convnext_blackbox,0.2539,0.0597,0.2876,0.0256
+densenet121,0.5178,0.0173,0.4105,0.0089
+efficientnet_b4,0.4115,0.0054,0.3481,0.0057
+resnet50,0.43,0.0116,0.3816,0.0062
+vit_small,0.2831,0.0041,0.2973,0.0054

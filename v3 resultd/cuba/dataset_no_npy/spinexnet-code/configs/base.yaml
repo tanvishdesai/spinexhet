@@ -1,0 +1,95 @@
+seed: 42
+experiment_name: base
+output_dir: /kaggle/working/outputs
+
+data:
+  manifest: /kaggle/working/manifests/manifest_with_concepts.csv
+  crop_root: null
+  cache_dir: null
+  require_crops: false
+  fold: 0
+  fold_col: fold
+  image_size: 224
+  crop_size: 224
+  # Non-leaky concepts (default for v2 pipeline)
+  concept_columns:
+    - concept_nonleaky_left_laterality
+    - concept_nonleaky_right_laterality
+    - concept_nonleaky_is_stenosis
+    - concept_nonleaky_is_foraminal
+    - concept_nonleaky_is_subarticular
+    - concept_nonleaky_adjacent_pathology_density
+    - concept_nonleaky_level_position
+  # Legacy leaky + BiomedCLIP concepts (for ablation only):
+  # - concept_pseudo_pathology_present
+  # - concept_pseudo_severe_grade
+  # - concept_pseudo_left_laterality
+  # - concept_pseudo_right_laterality
+  # - concept_pseudo_adjacent_pathology_density
+  # - concept_biomedclip_disc_height_loss
+  # - concept_biomedclip_disc_signal_loss
+  # - concept_biomedclip_endplate_change
+  # - concept_biomedclip_osteophyte_formation
+  # - concept_biomedclip_facet_hypertrophy
+  # - concept_biomedclip_ligamentum_flavum_thickening
+  # - concept_biomedclip_spinal_canal_narrowing
+  # - concept_biomedclip_neural_foraminal_narrowing
+  # - concept_biomedclip_disc_bulge_or_herniation
+  # - concept_biomedclip_abnormal_vertebral_alignment
+
+training:
+  epochs: 50
+  batch_size: 16
+  val_batch_size: 16
+  grad_accum: 2
+  num_workers: 2
+  persistent_workers: false
+  prefetch_factor: 2
+  lr: 0.001
+  backbone_lr: 0.0001
+  weight_decay: 0.01
+  warmup_epochs: 5
+  early_stopping_patience: 10
+  max_grad_norm: 1.0
+  amp: true
+  channels_last: true
+  compile: false
+  log_every: 25
+  progress_bar: false
+  progress_mininterval: 30.0
+  heartbeat_every_steps: 100
+  heartbeat_every_minutes: 5.0
+  checkpoint_every_steps: 500
+  checkpoint_every_minutes: 20.0
+  time_limit_minutes: null
+  max_train_batches: null
+  max_val_batches: null
+  validate_every: 1
+  skip_validation: false
+  save_val_predictions: false
+  save_val_predictions_best_only: true
+  compute_group_metrics: true
+  data_parallel: true
+
+loss:
+  class_weights: auto
+  classification: 1.0
+  concept: 0.3
+  prototype_cluster: 0.05
+  prototype_diversity: 0.02
+  ordinal: 0.2
+
+model:
+  type: spinexnet
+  backbone: convnext_tiny
+  pretrained: true
+  num_classes: 3
+  num_concepts: 7
+  num_prototypes: 50
+  meta_dim: 16
+  hidden_dim: 256
+  dropout: 0.2
+  prototype_temperature: 0.25
+  residual_features: true
+  residual_dim: 128
+  ordinal: true

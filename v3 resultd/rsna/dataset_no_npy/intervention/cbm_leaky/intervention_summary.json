@@ -1,0 +1,15 @@
+{
+  "total_samples": 1000,
+  "correct_before_intervention": 838,
+  "accuracy_before": 0.838,
+  "wrong_samples": 162,
+  "fixable_by_any_concept": 137,
+  "fix_rate": 0.8457,
+  "per_concept_fix_rate": {
+    "concept_pseudo_adjacent_pathology_density": 0.3704,
+    "concept_pseudo_left_laterality": 0.0,
+    "concept_pseudo_pathology_present": 0.7407,
+    "concept_pseudo_right_laterality": 0.0,
+    "concept_pseudo_severe_grade": 0.1605
+  }
+}

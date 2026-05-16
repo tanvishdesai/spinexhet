@@ -1,0 +1,63 @@
+[{"stream_name":"stderr","time":6.666355982,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.666398194,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.666404569,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.666409057,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.263175399,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.263203821,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.263208309,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.263212151,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.685131096,"data":"\u001b[?25l     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/7.8 MB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K     \u001b[91m━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.4/7.8 MB\u001b[0m \u001b[31m12.4 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m\u001b[90m━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m3.7/7.8 MB\u001b[0m \u001b[31m54.1 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m \u001b[32m7.8/7.8 MB\u001b[0m \u001b[31m90.5 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m7.8/7.8 MB\u001b[0m \u001b[31m61.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n"}
+,{"stream_name":"stdout","time":15.694578712,"data":"\u001b[?25h  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\r\n"}
+,{"stream_name":"stdout","time":15.897499454,"data":"  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\r\n"}
+,{"stream_name":"stdout","time":16.100266822,"data":"  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\r\n"}
+,{"stream_name":"stdout","time":16.505504314,"data":"\u001b[?25l   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/455.2 kB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m455.2/455.2 kB\u001b[0m \u001b[31m30.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\r\n"}
+,{"stream_name":"stdout","time":16.809389874,"data":"\u001b[?25h  Building wheel for grad-cam (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\r\n"}
+,{"stream_name":"stdout","time":19.239931924,"data":"Note: you may need to restart the kernel to use updated packages.\n"}
+,{"stream_name":"stdout","time":20.104590955,"data":"$ /usr/bin/python3 /kaggle/working/spinexnet-code/cub_200_generalization/aggregate_cub_results.py --copy-inputs --output-dir /kaggle/working/cub_aggregate\n"}
+,{"stream_name":"stdout","time":391.978955812,"data":"                  log_loss         accuracy  ... macro_f1 top5_accuracy        \n"}
+,{"stream_name":"stdout","time":391.979039933,"data":"                      mean     std     mean  ...      std          mean     std\n"}
+,{"stream_name":"stdout","time":391.979046119,"data":"model                                        ...                               \n"}
+,{"stream_name":"stdout","time":391.979054754,"data":"convnext_blackbox   2.8260  0.3877   0.3197  ...   0.0934        0.6046  0.0883\n"}
+,{"stream_name":"stdout","time":391.979057811,"data":"densenet121         0.7442  0.0294   0.8329  ...   0.0048        0.9558  0.0027\n"}
+,{"stream_name":"stdout","time":391.979060167,"data":"efficientnet_b4     0.7672  0.0150   0.8449  ...   0.0038        0.9589  0.0017\n"}
+,{"stream_name":"stdout","time":391.979062428,"data":"resnet50            0.6500  0.0227   0.8442  ...   0.0088        0.9642  0.0035\n"}
+,{"stream_name":"stdout","time":391.979064694,"data":"vit_small           1.1596  0.2392   0.7475  ...   0.0584        0.9056  0.0291\n"}
+,{"stream_name":"stdout","time":391.979066986,"data":"\n"}
+,{"stream_name":"stdout","time":391.979069223,"data":"[5 rows x 10 columns]\n"}
+,{"stream_name":"stdout","time":391.979071474,"data":"                  mean_spearman         mean_top20_iou        \n"}
+,{"stream_name":"stdout","time":391.979073944,"data":"                           mean     std           mean     std\n"}
+,{"stream_name":"stdout","time":391.979090844,"data":"model                                                         \n"}
+,{"stream_name":"stdout","time":391.979094968,"data":"convnext_blackbox        0.2539  0.0597         0.2876  0.0256\n"}
+,{"stream_name":"stdout","time":391.979098767,"data":"densenet121              0.5178  0.0173         0.4105  0.0089\n"}
+,{"stream_name":"stdout","time":391.979181632,"data":"efficientnet_b4          0.4115  0.0054         0.3481  0.0057\n"}
+,{"stream_name":"stdout","time":391.979190245,"data":"resnet50                 0.4300  0.0116         0.3816  0.0062\n"}
+,{"stream_name":"stdout","time":391.979194402,"data":"vit_small                0.2831  0.0041         0.2973  0.0054\n"}
+,{"stream_name":"stdout","time":391.97919834100003,"data":"{'output_dir': '/kaggle/working/cub_aggregate', 'eval_root': '/kaggle/working/cub_eval', 'xai_root': '/kaggle/working/cub_xai'}\n"}
+,{"stream_name":"stdout","time":392.137398981,"data":"                  log_loss         accuracy  ... macro_f1 top5_accuracy        \n"}
+,{"stream_name":"stdout","time":392.137424274,"data":"                      mean     std     mean  ...      std          mean     std\n"}
+,{"stream_name":"stdout","time":392.137429287,"data":"model                                        ...                               \n"}
+,{"stream_name":"stdout","time":392.137433312,"data":"convnext_blackbox   2.8260  0.3877   0.3197  ...   0.0934        0.6046  0.0883\n"}
+,{"stream_name":"stdout","time":392.137437424,"data":"densenet121         0.7442  0.0294   0.8329  ...   0.0048        0.9558  0.0027\n"}
+,{"stream_name":"stdout","time":392.137441918,"data":"efficientnet_b4     0.7672  0.0150   0.8449  ...   0.0038        0.9589  0.0017\n"}
+,{"stream_name":"stdout","time":392.137446122,"data":"resnet50            0.6500  0.0227   0.8442  ...   0.0088        0.9642  0.0035\n"}
+,{"stream_name":"stdout","time":392.137450788,"data":"vit_small           1.1596  0.2392   0.7475  ...   0.0584        0.9056  0.0291\n"}
+,{"stream_name":"stdout","time":392.137454926,"data":"\n"}
+,{"stream_name":"stdout","time":392.1374587,"data":"[5 rows x 10 columns]\n"}
+,{"stream_name":"stdout","time":392.137462699,"data":"                  mean_spearman         mean_top20_iou        \n"}
+,{"stream_name":"stdout","time":392.137466708,"data":"                           mean     std           mean     std\n"}
+,{"stream_name":"stdout","time":392.13747854,"data":"model                                                         \n"}
+,{"stream_name":"stdout","time":392.137482521,"data":"convnext_blackbox        0.2539  0.0597         0.2876  0.0256\n"}
+,{"stream_name":"stdout","time":392.137486496,"data":"densenet121              0.5178  0.0173         0.4105  0.0089\n"}
+,{"stream_name":"stdout","time":392.137490446,"data":"efficientnet_b4          0.4115  0.0054         0.3481  0.0057\n"}
+,{"stream_name":"stdout","time":392.13749437,"data":"resnet50                 0.4300  0.0116         0.3816  0.0062\n"}
+,{"stream_name":"stdout","time":392.137498245,"data":"vit_small                0.2831  0.0041         0.2973  0.0054\n"}
+,{"stream_name":"stdout","time":392.137502298,"data":"{'output_dir': '/kaggle/working/cub_aggregate', 'eval_root': '/kaggle/working/cub_eval', 'xai_root': '/kaggle/working/cub_xai'}\n"}
+,{"stream_name":"stderr","time":394.366510207,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":394.366542983,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":394.513547187,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":394.513582071,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":395.215274878,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":395.502864489,"data":"[NbConvertApp] Writing 7790 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":397.753779102,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":398.526798418,"data":"[NbConvertApp] Writing 283258 bytes to __results__.html\n"}
+]
