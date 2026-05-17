@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 
-MODELS = ["convnext_blackbox", "resnet50", "densenet121", "efficientnet_b4", "vit_small"]
+MODELS = ["convnext_blackbox", "resnet50", "densenet121", "efficientnet_b4", "vit_small", "deit_small"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -18,6 +18,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--input-roots", type=Path, nargs="*", default=None)
     p.add_argument("--output-dir", type=Path, default=Path("/kaggle/working/cub_aggregate"))
     p.add_argument("--models", nargs="+", default=MODELS)
+    p.add_argument(
+        "--min-accuracy-for-xai",
+        type=float,
+        default=0.70,
+        help="Exclude models below this mean accuracy from CUB XAI summaries.",
+    )
     p.add_argument("--copy-inputs", action="store_true", help="Merge cub_eval/cub_xai trees before aggregating.")
     return p.parse_args()
 
@@ -74,6 +80,38 @@ def aggregate_classification(eval_root: Path, output_dir: Path, models: list[str
     return df
 
 
+def eligible_xai_models(
+    classification: pd.DataFrame,
+    models: list[str],
+    min_accuracy: float,
+    output_dir: Path,
+) -> list[str]:
+    if classification.empty:
+        return models
+    summary = (
+        classification.groupby("model")["accuracy"]
+        .agg(["mean", "std", "count"])
+        .reindex(models)
+        .dropna(subset=["mean"])
+        .reset_index()
+    )
+    summary["xai_included"] = summary["mean"] >= min_accuracy
+    summary["reason"] = summary["xai_included"].map(
+        {True: "accuracy threshold met", False: "excluded: classifier did not converge"}
+    )
+    summary.to_csv(output_dir / "cub_xai_model_exclusion_report.csv", index=False)
+    excluded = summary.loc[~summary["xai_included"], "model"].tolist()
+    if excluded:
+        print(
+            {
+                "event": "cub_xai_models_excluded",
+                "min_accuracy": min_accuracy,
+                "models": excluded,
+            }
+        )
+    return summary.loc[summary["xai_included"], "model"].tolist()
+
+
 def aggregate_xai(xai_root: Path, output_dir: Path, models: list[str]) -> pd.DataFrame:
     rows = []
     for path in sorted(xai_root.glob("fold_*/*/xai_summary_cub.json")):
@@ -88,6 +126,9 @@ def aggregate_xai(xai_root: Path, output_dir: Path, models: list[str]) -> pd.Dat
                 "fold": path.parents[1].name,
                 "mean_spearman": summary.get("mean_spearman"),
                 "mean_top20_iou": summary.get("mean_top20_iou"),
+                "fw_consensus_insertion_auc_mean": summary.get("fw_consensus_insertion_auc_mean"),
+                "uniform_consensus_insertion_auc_mean": summary.get("uniform_consensus_insertion_auc_mean"),
+                "topk_consensus_insertion_auc_mean": summary.get("topk_consensus_insertion_auc_mean"),
                 "skipped": json.dumps(summary.get("skipped", {}), sort_keys=True),
             }
         )
@@ -98,13 +139,23 @@ def aggregate_xai(xai_root: Path, output_dir: Path, models: list[str]) -> pd.Dat
     df["fold_idx"] = df["fold"].str.extract(r"(\d+)").astype(int)
     df = df.sort_values(["model", "fold_idx"]).drop(columns=["fold_idx"])
     df.to_csv(output_dir / "cub_xai_summary_by_fold.csv", index=False)
-    summary = df.groupby("model")[["mean_spearman", "mean_top20_iou"]].agg(["mean", "std"]).round(4)
+    metric_cols = [
+        col for col in [
+            "mean_spearman",
+            "mean_top20_iou",
+            "fw_consensus_insertion_auc_mean",
+            "uniform_consensus_insertion_auc_mean",
+            "topk_consensus_insertion_auc_mean",
+        ]
+        if col in df and df[col].notna().any()
+    ]
+    summary = df.groupby("model")[metric_cols].agg(["mean", "std"]).round(4)
     summary.to_csv(output_dir / "cub_xai_summary_mean_std.csv")
     print(summary)
     return df
 
 
-def make_plots(classification: pd.DataFrame, xai: pd.DataFrame, output_dir: Path) -> None:
+def make_plots(classification: pd.DataFrame, xai: pd.DataFrame, output_dir: Path, models: list[str]) -> None:
     if classification.empty and xai.empty:
         return
     import matplotlib
@@ -115,7 +166,7 @@ def make_plots(classification: pd.DataFrame, xai: pd.DataFrame, output_dir: Path
     fig_dir.mkdir(parents=True, exist_ok=True)
 
     if not classification.empty:
-        cls = classification.groupby("model")["accuracy"].agg(["mean", "std"]).reindex(MODELS).dropna()
+        cls = classification.groupby("model")["accuracy"].agg(["mean", "std"]).reindex(models).dropna()
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.bar(cls.index, cls["mean"], yerr=cls["std"], color="#4e79a7", capsize=4)
         ax.set_ylabel("CUB-200 validation accuracy")
@@ -127,7 +178,7 @@ def make_plots(classification: pd.DataFrame, xai: pd.DataFrame, output_dir: Path
         plt.close(fig)
 
     if not xai.empty:
-        xai_summary = xai.groupby("model")["mean_spearman"].agg(["mean", "std"]).reindex(MODELS).dropna()
+        xai_summary = xai.groupby("model")["mean_spearman"].agg(["mean", "std"]).reindex(models).dropna()
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.bar(xai_summary.index, xai_summary["mean"], yerr=xai_summary["std"], color="#59a14f", capsize=4)
         ax.set_ylabel("Mean attribution Spearman rho")
@@ -152,8 +203,9 @@ def main() -> None:
         xai_root = work / "cub_xai"
 
     classification = aggregate_classification(eval_root, args.output_dir, args.models)
-    xai = aggregate_xai(xai_root, args.output_dir, args.models)
-    make_plots(classification, xai, args.output_dir)
+    xai_models = eligible_xai_models(classification, args.models, args.min_accuracy_for_xai, args.output_dir)
+    xai = aggregate_xai(xai_root, args.output_dir, xai_models)
+    make_plots(classification, xai, args.output_dir, args.models)
     print({"output_dir": str(args.output_dir), "eval_root": str(eval_root), "xai_root": str(xai_root)})
 
 

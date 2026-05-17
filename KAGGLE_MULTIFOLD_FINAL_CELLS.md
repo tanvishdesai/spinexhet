@@ -100,6 +100,7 @@ CFG = {
     "densenet121": CODE / "configs/baselines/densenet121.yaml",
     "efficientnet_b4": CODE / "configs/baselines/efficientnet_b4.yaml",
     "vit_small": CODE / "configs/baselines/vit_small.yaml",
+    "deit_small": CODE / "configs/baselines/deit_small.yaml",
 }
 EXP = {
     "convnext_blackbox": "baseline_convnext_tiny_blackbox",
@@ -109,6 +110,7 @@ EXP = {
     "densenet121": "baseline_densenet121",
     "efficientnet_b4": "baseline_efficientnet_b4",
     "vit_small": "baseline_vit_small",
+    "deit_small": "baseline_deit_small",
 }
 MODELS = list(CFG)
 
@@ -146,6 +148,7 @@ TRAIN_MODELS = [
     "densenet121",
     "efficientnet_b4",
     "vit_small",
+    "deit_small",
 ]
 FOLDS_TO_TRAIN = [3, 4]
 
@@ -157,6 +160,7 @@ BATCH = {
     "densenet121": 32,
     "efficientnet_b4": 16,
     "vit_small": 16,
+    "deit_small": 16,
 }
 ACCUM = {m: (32 // BATCH[m]) for m in BATCH}
 
@@ -264,7 +268,7 @@ for fold in XAI_FOLDS:
             cmd.append("--save-maps")
         if not RUN_CONSENSUS:
             cmd.append("--skip-consensus")
-        if model == "vit_small":
+        if model in {"vit_small", "deit_small"}:
             cmd.append("--enable-attention-rollout")
         run(cmd)
 
@@ -320,7 +324,7 @@ run([
 ## Cell 5: Feature-Map Coherence
 
 ```python
-THEORY_MODELS = ["resnet50", "densenet121", "convnext_blackbox", "efficientnet_b4", "vit_small"]
+THEORY_MODELS = ["resnet50", "densenet121", "convnext_blackbox", "efficientnet_b4", "vit_small", "deit_small"]
 fold = 0
 
 run([
@@ -340,7 +344,7 @@ run([
 ## Cell 6: Randomization sanity check
 
 ```python
-for model in ["convnext_blackbox", "vit_small"]:
+for model in ["convnext_blackbox", "vit_small", "deit_small"]:
     run([
         sys.executable, CODE / "scripts/model_randomization.py",
         "--config", CFG[model],
@@ -381,7 +385,7 @@ Recommended parallel split:
 
 1. Notebook A: `TRAIN_MODELS = ["convnext_blackbox", "cbm_nonleaky", "cbm_leaky"]`
 2. Notebook B: `TRAIN_MODELS = ["resnet50", "densenet121"]`
-3. Notebook C: `TRAIN_MODELS = ["efficientnet_b4", "vit_small"]`
+3. Notebook C: `TRAIN_MODELS = ["efficientnet_b4", "vit_small", "deit_small"]`
 4. After those outputs are saved as a Kaggle dataset, run Cell 2.
 5. Run Cell 3 either sequentially or split by `XAI_MODELS` across notebooks.
 6. Cells 4 to 7 can run after the needed XAI/checkpoint inputs exist. Cell 4 is

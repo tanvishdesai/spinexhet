@@ -16,6 +16,7 @@ SPINE_MODELS = {
     "densenet121": "DenseNet-121",
     "efficientnet_b4": "EfficientNet-B4",
     "vit_small": "ViT-Small",
+    "deit_small": "DeiT-Small",
 }
 
 CUB_MODELS = {
@@ -24,6 +25,7 @@ CUB_MODELS = {
     "densenet121": "DenseNet-121",
     "efficientnet_b4": "EfficientNet-B4",
     "vit_small": "ViT-Small",
+    "deit_small": "DeiT-Small",
 }
 
 
@@ -65,6 +67,7 @@ CFG_NAME = {
     "densenet121": "configs/baselines/densenet121.yaml",
     "efficientnet_b4": "configs/baselines/efficientnet_b4.yaml",
     "vit_small": "configs/baselines/vit_small.yaml",
+    "deit_small": "configs/baselines/deit_small.yaml",
 }
 EXP = {
     "convnext_blackbox": "baseline_convnext_tiny_blackbox",
@@ -74,6 +77,7 @@ EXP = {
     "densenet121": "baseline_densenet121",
     "efficientnet_b4": "baseline_efficientnet_b4",
     "vit_small": "baseline_vit_small",
+    "deit_small": "baseline_deit_small",
 }
 BATCH = {
     "convnext_blackbox": 32,
@@ -83,6 +87,7 @@ BATCH = {
     "densenet121": 32,
     "efficientnet_b4": 16,
     "vit_small": 16,
+    "deit_small": 16,
 }
 ACCUM = {m: max(1, 32 // BATCH[m]) for m in BATCH}
 
@@ -333,7 +338,7 @@ for fold in XAI_FOLDS:
         cmd.append("--save-maps")
     if not RUN_CONSENSUS:
         cmd.append("--skip-consensus")
-    if model == "vit_small":
+    if model in {"vit_small", "deit_small"}:
         cmd.append("--enable-attention-rollout")
     jobs.append((f"xai {model} fold {fold}", cmd))
 
@@ -373,8 +378,8 @@ WORK = Path("/kaggle/working")
 INPUT = Path("/kaggle/input")
 PY = sys.executable
 
-MODELS = ["convnext_blackbox", "cbm_nonleaky", "cbm_leaky", "resnet50", "densenet121", "efficientnet_b4", "vit_small"]
-THEORY_MODELS = ["resnet50", "densenet121", "convnext_blackbox", "efficientnet_b4", "vit_small"]
+MODELS = ["convnext_blackbox", "cbm_nonleaky", "cbm_leaky", "resnet50", "densenet121", "efficientnet_b4", "vit_small", "deit_small"]
+THEORY_MODELS = ["resnet50", "densenet121", "convnext_blackbox", "efficientnet_b4", "vit_small", "deit_small"]
 
 CFG_NAME = {
     "convnext_blackbox": "configs/baselines/convnext_blackbox.yaml",
@@ -384,6 +389,7 @@ CFG_NAME = {
     "densenet121": "configs/baselines/densenet121.yaml",
     "efficientnet_b4": "configs/baselines/efficientnet_b4.yaml",
     "vit_small": "configs/baselines/vit_small.yaml",
+    "deit_small": "configs/baselines/deit_small.yaml",
 }
 EXP = {
     "convnext_blackbox": "baseline_convnext_tiny_blackbox",
@@ -393,6 +399,7 @@ EXP = {
     "densenet121": "baseline_densenet121",
     "efficientnet_b4": "baseline_efficientnet_b4",
     "vit_small": "baseline_vit_small",
+    "deit_small": "baseline_deit_small",
 }
 
 def run(cmd):
@@ -556,7 +563,7 @@ for model in MODELS:
     run([PY, CODE / "scripts/visualize_xai.py", "--results-dir", XAI_FOLD0 / model, "--output-dir", FIG / "fold_0" / model])
 
 run([PY, CODE / "scripts/visualize_xai.py", "--cross-model-dir", XAI_FOLD0, "--output-dir", FIG / "fold_0" / "cross_model"])
-run([PY, CODE / "scripts/generate_gallery.py", "--xai-dir", XAI_FOLD0, "--models", "densenet121", "convnext_blackbox", "vit_small", "--manifest", MANIFEST, "--cache-dir", CACHE, "--output-dir", FIG / "fold_0" / "gallery"])
+run([PY, CODE / "scripts/generate_gallery.py", "--xai-dir", XAI_FOLD0, "--models", "densenet121", "deit_small", "vit_small", "--manifest", MANIFEST, "--cache-dir", CACHE, "--output-dir", FIG / "fold_0" / "gallery"])
 '''
 
 
@@ -577,7 +584,7 @@ run([
 
 
 AGG_RANDOMIZATION_INTERVENTION = r'''
-for model in ["convnext_blackbox", "vit_small"]:
+for model in ["convnext_blackbox", "vit_small", "deit_small"]:
     run([
         PY, CODE / "scripts/model_randomization.py",
         "--config", CFG[model],
@@ -617,7 +624,6 @@ PY = sys.executable
 FOLDS = [0, 1, 2, 3, 4]
 XAI_FOLDS = [0, 1, 2, 3, 4]
 MAX_SAMPLES = 300
-EPOCHS = 15
 PARALLEL_FOLDS_IF_2GPU = True
 SAVE_MAPS = True
 RUN_FAITHFULNESS = True
@@ -628,6 +634,43 @@ BATCH = {
     "densenet121": 32,
     "efficientnet_b4": 16,
     "vit_small": 16,
+    "deit_small": 16,
+}
+EPOCHS = {
+    "convnext_blackbox": 35,
+    "resnet50": 15,
+    "densenet121": 15,
+    "efficientnet_b4": 15,
+    "vit_small": 15,
+    "deit_small": 30,
+}
+LR = {
+    "convnext_blackbox": 1e-4,
+    "resnet50": 3e-4,
+    "densenet121": 3e-4,
+    "efficientnet_b4": 3e-4,
+    "vit_small": 3e-4,
+    "deit_small": 1e-4,
+}
+BACKBONE_LR = {
+    "convnext_blackbox": 5e-5,
+    "deit_small": 5e-5,
+}
+HEAD_LR = {
+    "convnext_blackbox": 5e-4,
+    "deit_small": 5e-4,
+}
+WARMUP_EPOCHS = {
+    "convnext_blackbox": 3,
+    "deit_small": 3,
+}
+PATIENCE = {
+    "convnext_blackbox": 8,
+    "deit_small": 8,
+}
+DROP_PATH = {
+    "convnext_blackbox": 0.1,
+    "deit_small": 0.1,
 }
 METHODS = [
     "gradcam",
@@ -765,11 +808,23 @@ for fold in FOLDS:
             "--cub-root", CUB_ROOT,
             "--fold", fold,
             "--output-dir", out,
-            "--epochs", EPOCHS,
+            "--epochs", EPOCHS[model],
             "--batch-size", BATCH[model],
+            "--lr", LR[model],
+            "--weight-decay", 0.05,
             "--time-limit-minutes", 500,
         ],
     ))
+    if model in BACKBONE_LR:
+        jobs[-1][1].extend(["--backbone-lr", BACKBONE_LR[model]])
+    if model in HEAD_LR:
+        jobs[-1][1].extend(["--head-lr", HEAD_LR[model]])
+    if model in WARMUP_EPOCHS:
+        jobs[-1][1].extend(["--warmup-epochs", WARMUP_EPOCHS[model]])
+    if model in PATIENCE:
+        jobs[-1][1].extend(["--patience", PATIENCE[model]])
+    if model in DROP_PATH:
+        jobs[-1][1].extend(["--drop-path-rate", DROP_PATH[model]])
 
 run_jobs(jobs, parallel_if_2gpu=PARALLEL_FOLDS_IF_2GPU)
 '''
@@ -826,7 +881,7 @@ for fold in XAI_FOLDS:
         cmd.append("--save-maps")
     if not RUN_FAITHFULNESS:
         cmd.append("--skip-faithfulness")
-    if model == "vit_small":
+    if model in {"vit_small", "deit_small"}:
         cmd.append("--enable-attention-rollout")
     jobs.append((f"cub xai {model} fold {fold}", cmd))
 

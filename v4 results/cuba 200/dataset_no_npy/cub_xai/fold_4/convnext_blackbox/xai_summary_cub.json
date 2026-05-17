@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.4351469826981421,
+    "mean_spearman_ci": [
+      0.4172,
+      0.4531
+    ],
+    "mean_top20_iou": 0.3853895898905637,
+    "mean_top20_iou_ci": [
+      0.3744,
+      0.3965
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.2120534842344911,
+        "insertion_auc": 0.7493838910437468
+      },
+      "gradcam++": {
+        "deletion_auc": 0.27588030746551856,
+        "insertion_auc": 0.714602874852341
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.08360630237807345,
+        "insertion_auc": 0.7663857438884308
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.12288085381099519,
+        "insertion_auc": 0.7122124355329063
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.08530888715194306,
+        "insertion_auc": 0.7638036682841121
+      },
+      "occlusion": {
+        "deletion_auc": 0.1979336720077178,
+        "insertion_auc": 0.7909984710870971
+      }
+    },
+    "consensus_insertion_auc_mean": 0.8187860368992067,
+    "fw_consensus_insertion_auc_mean": 0.8187860368992067,
+    "uniform_consensus_insertion_auc_mean": 0.8165525483529443,
+    "topk_consensus_insertion_auc_mean": 0.8325173105381933
+  },
+  "args": {
+    "model": "convnext_blackbox",
+    "checkpoint": "/kaggle/working/cub_outputs/convnext_blackbox/fold_4/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "4",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_4/convnext_blackbox",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "skip_consensus": "False",
+    "consensus_every": "10",
+    "consensus_temperature": "1.0",
+    "topk_consensus_methods": "3",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

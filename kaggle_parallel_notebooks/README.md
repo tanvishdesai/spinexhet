@@ -15,6 +15,7 @@ folds 3 and 4, and leaves one combined output dataset containing folds 0-4.
 - `train_eval_xai_densenet121.ipynb`
 - `train_eval_xai_efficientnet_b4.ipynb`
 - `train_eval_xai_vit_small.ipynb`
+- `train_eval_xai_deit_small.ipynb`
 
 Each notebook defaults to:
 
@@ -28,14 +29,18 @@ run and gives a clean 5-fold XAI table.
 
 ## Aggregation
 
-After all seven per-model notebooks finish:
+After all eight per-model notebooks finish:
 
 1. Save/update each notebook output as a Kaggle dataset.
-2. Attach all seven output datasets to `aggregate_parallel_results.ipynb`.
+2. Attach all eight output datasets to `aggregate_parallel_results.ipynb`.
 3. Run the aggregate notebook.
 
 The aggregate notebook now also runs `scripts/feature_map_smoothness.py`, the
 replacement for the old input-gradient GLS experiment.
+
+`deit_small` is the added second Transformer. It uses Attention Rollout like
+`vit_small`, so run its full XAI pass rather than extrapolating Transformer
+behavior from ViT alone.
 
 ## Output To Keep
 

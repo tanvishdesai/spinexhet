@@ -1,0 +1,6 @@
+test,metric,n,mean_delta,std_delta,wilcoxon_stat,wilcoxon_p,paired_t_stat,paired_t_p,spearman_rho,spearman_p,kendall_tau,kendall_p,models
+RSNA: densenet121 vs vit_small,mean_spearman,5,0.23440536445957286,0.044570872082613594,0.0,0.0625,11.759840109269021,0.00029915380701865375,,,,,
+RSNA: resnet50 vs vit_small,mean_spearman,5,0.21211250202940235,0.04849463193777007,0.0,0.0625,9.78042217175585,0.0006124119177426139,,,,,
+CUB: densenet121 vs vit_small,mean_spearman,5,0.23471259885443746,0.02051377833100694,0.0,0.0625,25.584430022862563,1.3862383704851533e-05,,,,,
+CUB: resnet50 vs vit_small,mean_spearman,5,0.1468738951114928,0.01343889192958547,0.0,0.0625,24.4380277265614,1.6636200632669584e-05,,,,,
+RSNA vs CUB architecture-rank correlation,mean_spearman,4,,,,,,,1.0,0.0,1.0,0.08333333333333333,densenet121 efficientnet_b4 resnet50 vit_small

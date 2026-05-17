@@ -134,6 +134,67 @@ class FaithfulnessWeightedConsensus:
         return consensus, weights, saliency_maps
 
 
+def uniform_consensus_map(
+    saliency_maps: dict[str, np.ndarray],
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Average normalized saliency maps with equal weights."""
+    if not saliency_maps:
+        raise ValueError("uniform_consensus_map requires at least one saliency map.")
+    names = list(saliency_maps)
+    maps = np.stack([normalize_map(saliency_maps[name]) for name in names], axis=0)
+    weight = 1.0 / len(names)
+    return normalize_map(maps.mean(axis=0)), {name: weight for name in names}
+
+
+def faithfulness_weighted_consensus_map(
+    saliency_maps: dict[str, np.ndarray],
+    faithfulness_scores: dict[str, float],
+    temperature: float = 1.0,
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Combine maps with softmax-normalized faithfulness scores."""
+    candidates = [
+        name for name in saliency_maps
+        if name in faithfulness_scores and np.isfinite(float(faithfulness_scores[name]))
+    ]
+    if not candidates:
+        return uniform_consensus_map(saliency_maps)
+
+    scores = np.asarray([float(faithfulness_scores[name]) for name in candidates], dtype=np.float64)
+    shifted = (scores - scores.mean()) / max(float(temperature), 1e-6)
+    shifted = shifted - shifted.max()
+    weights_arr = np.exp(shifted)
+    weights_arr = weights_arr / max(float(weights_arr.sum()), 1e-12)
+
+    consensus = np.zeros_like(normalize_map(saliency_maps[candidates[0]]), dtype=np.float64)
+    for name, weight in zip(candidates, weights_arr):
+        consensus += float(weight) * normalize_map(saliency_maps[name])
+
+    return normalize_map(consensus), dict(zip(candidates, weights_arr.astype(float).tolist()))
+
+
+def topk_faithfulness_consensus_map(
+    saliency_maps: dict[str, np.ndarray],
+    faithfulness_scores: dict[str, float],
+    top_k: int = 3,
+    temperature: float = 1.0,
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Faithfulness-weighted consensus using only the top-k methods."""
+    candidates = [
+        name for name in saliency_maps
+        if name in faithfulness_scores and np.isfinite(float(faithfulness_scores[name]))
+    ]
+    if not candidates:
+        return uniform_consensus_map(saliency_maps)
+    candidates = sorted(candidates, key=lambda name: float(faithfulness_scores[name]), reverse=True)
+    if top_k > 0:
+        candidates = candidates[:top_k]
+    return faithfulness_weighted_consensus_map(
+        {name: saliency_maps[name] for name in candidates},
+        {name: faithfulness_scores[name] for name in candidates},
+        temperature=temperature,
+    )
+
+
 # ── Disagreement / Uncertainty Maps ──────────────────────────────────────────
 
 

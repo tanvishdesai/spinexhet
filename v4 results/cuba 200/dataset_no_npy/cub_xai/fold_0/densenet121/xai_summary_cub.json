@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.5148219511525882,
+    "mean_spearman_ci": [
+      0.4999,
+      0.5301
+    ],
+    "mean_top20_iou": 0.408069800978927,
+    "mean_top20_iou_ci": [
+      0.3976,
+      0.4188
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.15683849960652257,
+        "insertion_auc": 0.6037722934198494
+      },
+      "gradcam++": {
+        "deletion_auc": 0.12537829714180332,
+        "insertion_auc": 0.6373730785724802
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.04435757021460935,
+        "insertion_auc": 0.5610681904776921
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.04433490489650952,
+        "insertion_auc": 0.5477169786861567
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.048355194088584845,
+        "insertion_auc": 0.547497483774698
+      },
+      "occlusion": {
+        "deletion_auc": 0.08602365859840409,
+        "insertion_auc": 0.6548061003893867
+      }
+    }
+  },
+  "args": {
+    "model": "densenet121",
+    "checkpoint": "/kaggle/working/cub_outputs/densenet121/fold_0/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "0",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_0/densenet121",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

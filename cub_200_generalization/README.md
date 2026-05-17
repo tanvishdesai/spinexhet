@@ -1,13 +1,15 @@
 # CUB-200 Generalization Track
 
 This folder is the natural-image generalization proof requested in `next_steps.md`.
-It intentionally trains the five black-box architecture families on CUB-200:
+It trains the black-box architecture families on CUB-200, including a second
+Transformer added after V3 mentor review:
 
 - `convnext_blackbox`
 - `resnet50`
 - `densenet121`
 - `efficientnet_b4`
 - `vit_small`
+- `deit_small`
 
 The spine CBM variants are not carried over here because their concepts are
 spine metadata concepts. CUB has attributes, but using them would create a
@@ -32,9 +34,16 @@ Attach these datasets to every CUB notebook:
    Each notebook trains folds `0..4`, evaluates the validation split for each
    fold, and runs CUB attribution agreement.
 2. Save each per-model notebook output as a Kaggle dataset.
-3. Attach all five per-model output datasets to
+3. Attach all per-model output datasets to
    `aggregate_cub_results.ipynb`.
 4. Run `aggregate_cub_results.ipynb` to produce final CSV tables and figures.
+
+The aggregator keeps classification metrics for every model, but excludes CUB
+XAI summaries for models with mean validation accuracy below `0.70` by default.
+This prevents a failed classifier, especially the previous ConvNeXt run, from
+contaminating the cross-domain explanation analysis. Rerun ConvNeXt with the
+updated training recipe below; if it crosses the threshold, it is included
+automatically.
 
 ## Direct CLI
 
@@ -69,7 +78,41 @@ python cub_200_generalization/run_cub_xai.py \
   --save-maps
 ```
 
-For `vit_small`, add `--enable-attention-rollout`.
+For `vit_small` and `deit_small`, add `--enable-attention-rollout`.
+
+Recommended rerun for ConvNeXt-CUB:
+
+```bash
+python cub_200_generalization/train_cub_model.py \
+  --model convnext_blackbox \
+  --cub-root /kaggle/input/<dataset>/CUB_200_2011 \
+  --fold 0 \
+  --output-dir /kaggle/working/cub_outputs/convnext_blackbox/fold_0 \
+  --epochs 35 \
+  --lr 1e-4 \
+  --backbone-lr 5e-5 \
+  --head-lr 5e-4 \
+  --warmup-epochs 3 \
+  --patience 8 \
+  --drop-path-rate 0.1
+```
+
+Recommended run for the second Transformer:
+
+```bash
+python cub_200_generalization/train_cub_model.py \
+  --model deit_small \
+  --cub-root /kaggle/input/<dataset>/CUB_200_2011 \
+  --fold 0 \
+  --output-dir /kaggle/working/cub_outputs/deit_small/fold_0 \
+  --epochs 30 \
+  --lr 1e-4 \
+  --backbone-lr 5e-5 \
+  --head-lr 5e-4 \
+  --warmup-epochs 3 \
+  --patience 8 \
+  --drop-path-rate 0.1
+```
 
 Aggregate all per-model outputs:
 
@@ -88,6 +131,7 @@ Per model/fold:
 - `cub_eval/<model>/fold_<k>/predictions_val.csv`
 - `cub_xai/fold_<k>/<model>/agreement_metrics.csv`
 - `cub_xai/fold_<k>/<model>/faithfulness_metrics.csv`
+- `cub_xai/fold_<k>/<model>/consensus_metrics.csv`
 - `cub_xai/fold_<k>/<model>/xai_summary_cub.json`
 
 Aggregated:
@@ -96,5 +140,6 @@ Aggregated:
 - `cub_classification_metrics_mean_std.csv`
 - `cub_xai_summary_by_fold.csv`
 - `cub_xai_summary_mean_std.csv`
+- `cub_xai_model_exclusion_report.csv`
 - `figures/cub_classification_accuracy.png`
 - `figures/cub_xai_agreement.png`

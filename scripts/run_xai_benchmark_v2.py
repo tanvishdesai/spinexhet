@@ -47,8 +47,10 @@ from spine_xnet.evaluation.xai import (
     run_attribution_method,
 )
 from spine_xnet.evaluation.consensus import (
-    FaithfulnessWeightedConsensus,
     compute_disagreement_map,
+    faithfulness_weighted_consensus_map,
+    topk_faithfulness_consensus_map,
+    uniform_consensus_map,
 )
 from spine_xnet.evaluation.stats import bootstrap_ci, format_with_ci
 from spine_xnet.models import build_model
@@ -80,6 +82,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--skip-faithfulness", action="store_true")
     p.add_argument("--skip-consensus", action="store_true",
                     help="Skip FW-Consensus computation (saves time)")
+    p.add_argument("--consensus-every", type=int, default=10,
+                    help="Evaluate consensus maps every N samples.")
+    p.add_argument("--consensus-temperature", type=float, default=1.0,
+                    help="Softmax temperature for faithfulness consensus weights.")
+    p.add_argument("--topk-consensus-methods", type=int, default=3,
+                    help="Number of most faithful methods for top-k consensus baseline.")
     p.add_argument("--enable-attention-rollout", action="store_true",
                     help="Add attention_rollout to methods (ViT only)")
     return p.parse_args()
@@ -190,6 +198,7 @@ def main() -> None:
             target = int(torch.softmax(outputs["logits"], dim=1).argmax(dim=1).item())
 
         attributions: dict[str, np.ndarray] = {}
+        sample_insertions: dict[str, float] = {}
 
         # ── Compute attributions ─────────────────────────────────────────
         for method in methods:
@@ -224,6 +233,7 @@ def main() -> None:
                         "condition": condition, "label": label, "target": target,
                         "deletion_auc": del_auc, "insertion_auc": ins_auc,
                     })
+                    sample_insertions[method] = ins_auc
                 except Exception:
                     pass
 
@@ -268,38 +278,60 @@ def main() -> None:
                     pass
 
         # ── FW-Consensus (every 10th sample to save time) ────────────────
-        if not args.skip_consensus and sample_idx % 10 == 0 and len(attributions) >= 3:
+        if (
+            not args.skip_consensus
+            and args.consensus_every > 0
+            and sample_idx % args.consensus_every == 0
+            and len(attributions) >= 3
+        ):
             try:
-                wrapped = FixedMetaModel(model, condition_idx, level_idx)
+                if not sample_insertions:
+                    for method, attr in attributions.items():
+                        sample_insertions[method] = deletion_insertion_auc(
+                            model, batch["image"], attr, condition_idx, level_idx, target,
+                            mode="insertion", steps=args.faithfulness_steps,
+                        )
 
-                def _forward_fn(x):
-                    return wrapped(x)
-
-                xai_fns = {}
-                for m_name in attributions:
-                    def _make_fn(method_name):
-                        def fn(inp, tgt):
-                            return run_attribution_method(
-                                method_name, model, inp, condition_idx, level_idx, tgt,
-                            )
-                        return fn
-                    xai_fns[m_name] = _make_fn(m_name)
-
-                fwc = FaithfulnessWeightedConsensus(model, xai_fns, n_steps=10)
-                consensus_map, weights, _ = fwc.get_consensus_map(
-                    batch["image"], target, _forward_fn,
+                fw_map, fw_weights = faithfulness_weighted_consensus_map(
+                    attributions,
+                    sample_insertions,
+                    temperature=args.consensus_temperature,
                 )
-                # Evaluate consensus map
-                cons_ins_auc = deletion_insertion_auc(
-                    model, batch["image"], consensus_map, condition_idx, level_idx, target,
+                uniform_map, _ = uniform_consensus_map(attributions)
+                topk_map, topk_weights = topk_faithfulness_consensus_map(
+                    attributions,
+                    sample_insertions,
+                    top_k=args.topk_consensus_methods,
+                    temperature=args.consensus_temperature,
+                )
+
+                fw_ins_auc = deletion_insertion_auc(
+                    model, batch["image"], fw_map, condition_idx, level_idx, target,
                     mode="insertion", steps=args.faithfulness_steps,
                 )
-                cons_expert = expert_roi_alignment(consensus_map, expert_mask)
+                uniform_ins_auc = deletion_insertion_auc(
+                    model, batch["image"], uniform_map, condition_idx, level_idx, target,
+                    mode="insertion", steps=args.faithfulness_steps,
+                )
+                topk_ins_auc = deletion_insertion_auc(
+                    model, batch["image"], topk_map, condition_idx, level_idx, target,
+                    mode="insertion", steps=args.faithfulness_steps,
+                )
+                fw_expert = expert_roi_alignment(fw_map, expert_mask)
+                uniform_expert = expert_roi_alignment(uniform_map, expert_mask)
+                topk_expert = expert_roi_alignment(topk_map, expert_mask)
                 consensus_rows.append({
                     "sample_id": sample_id,
-                    "consensus_insertion_auc": cons_ins_auc,
-                    "consensus_expert_roi": cons_expert,
-                    **{f"weight_{k}": v for k, v in weights.items()},
+                    "consensus_insertion_auc": fw_ins_auc,
+                    "consensus_expert_roi": fw_expert,
+                    "fw_consensus_insertion_auc": fw_ins_auc,
+                    "fw_consensus_expert_roi": fw_expert,
+                    "uniform_consensus_insertion_auc": uniform_ins_auc,
+                    "uniform_consensus_expert_roi": uniform_expert,
+                    "topk_consensus_insertion_auc": topk_ins_auc,
+                    "topk_consensus_expert_roi": topk_expert,
+                    "topk_methods": " ".join(topk_weights),
+                    **{f"weight_{k}": v for k, v in fw_weights.items()},
                 })
             except Exception:
                 pass
@@ -368,8 +400,19 @@ def _build_summary(faith, agree, consist, clinical, consensus) -> dict:
         )
     if consensus:
         df = pd.DataFrame(consensus)
-        s["consensus_insertion_auc_mean"] = float(df["consensus_insertion_auc"].mean())
-        s["consensus_expert_roi_mean"] = float(df["consensus_expert_roi"].mean())
+        fw_col = "fw_consensus_insertion_auc" if "fw_consensus_insertion_auc" in df else "consensus_insertion_auc"
+        fw_expert_col = "fw_consensus_expert_roi" if "fw_consensus_expert_roi" in df else "consensus_expert_roi"
+        s["consensus_insertion_auc_mean"] = float(df[fw_col].mean())
+        s["consensus_expert_roi_mean"] = float(df[fw_expert_col].mean())
+        s["fw_consensus_insertion_auc_mean"] = float(df[fw_col].mean())
+        s["fw_consensus_expert_roi_mean"] = float(df[fw_expert_col].mean())
+        for prefix in ["uniform_consensus", "topk_consensus"]:
+            ins_col = f"{prefix}_insertion_auc"
+            expert_col = f"{prefix}_expert_roi"
+            if ins_col in df:
+                s[f"{ins_col}_mean"] = float(df[ins_col].mean())
+            if expert_col in df:
+                s[f"{expert_col}_mean"] = float(df[expert_col].mean())
     return s
 
 

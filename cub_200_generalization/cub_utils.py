@@ -20,7 +20,53 @@ CUB_MODELS: dict[str, str] = {
     "densenet121": "densenet121",
     "efficientnet_b4": "efficientnet_b4",
     "vit_small": "vit_small_patch16_224",
+    "deit_small": "deit_small_patch16_224",
 }
+
+
+BASE_TRAINING_RECIPE: dict[str, float | int] = {
+    "epochs": 15,
+    "lr": 3e-4,
+    "weight_decay": 0.05,
+    "warmup_epochs": 1,
+    "patience": 5,
+    "label_smoothing": 0.05,
+    "drop_path_rate": 0.0,
+}
+
+
+CUB_TRAINING_RECIPES: dict[str, dict[str, float | int | None]] = {
+    # ConvNeXt was unstable with the original one-rate, 15-epoch recipe. The
+    # lower backbone LR preserves ImageNet features while the classifier adapts.
+    "convnext_blackbox": {
+        "epochs": 35,
+        "lr": 1e-4,
+        "backbone_lr": 5e-5,
+        "head_lr": 5e-4,
+        "weight_decay": 0.05,
+        "warmup_epochs": 3,
+        "patience": 8,
+        "label_smoothing": 0.05,
+        "drop_path_rate": 0.1,
+    },
+    "deit_small": {
+        "epochs": 30,
+        "lr": 1e-4,
+        "backbone_lr": 5e-5,
+        "head_lr": 5e-4,
+        "weight_decay": 0.05,
+        "warmup_epochs": 3,
+        "patience": 8,
+        "label_smoothing": 0.1,
+        "drop_path_rate": 0.1,
+    },
+}
+
+
+def get_cub_training_recipe(model_name: str) -> dict[str, float | int | None]:
+    recipe = dict(BASE_TRAINING_RECIPE)
+    recipe.update(CUB_TRAINING_RECIPES.get(model_name, {}))
+    return recipe
 
 
 @dataclass(frozen=True)
@@ -129,13 +175,28 @@ class CUBDataset(Dataset):
         }
 
 
-def build_cub_model(model_name: str, num_classes: int = 200, pretrained: bool = True) -> torch.nn.Module:
+def build_cub_model(
+    model_name: str,
+    num_classes: int = 200,
+    pretrained: bool = True,
+    drop_path_rate: float = 0.0,
+) -> torch.nn.Module:
     import timm
 
     if model_name not in CUB_MODELS:
         known = ", ".join(sorted(CUB_MODELS))
         raise ValueError(f"Unknown CUB model '{model_name}'. Known models: {known}")
-    return timm.create_model(CUB_MODELS[model_name], pretrained=pretrained, num_classes=num_classes)
+    kwargs: dict[str, Any] = {
+        "pretrained": pretrained,
+        "num_classes": num_classes,
+    }
+    if drop_path_rate > 0:
+        kwargs["drop_path_rate"] = float(drop_path_rate)
+    try:
+        return timm.create_model(CUB_MODELS[model_name], **kwargs)
+    except TypeError:
+        kwargs.pop("drop_path_rate", None)
+        return timm.create_model(CUB_MODELS[model_name], **kwargs)
 
 
 def softmax_np(logits: np.ndarray) -> np.ndarray:
@@ -188,6 +249,11 @@ def load_model_from_checkpoint(
     resolved_model = model_name or cfg.get("model_name")
     if not resolved_model:
         raise ValueError("model_name must be provided when checkpoint config has no model_name.")
-    model = build_cub_model(resolved_model, num_classes=int(cfg.get("num_classes", 200)), pretrained=False)
+    model = build_cub_model(
+        resolved_model,
+        num_classes=int(cfg.get("num_classes", 200)),
+        pretrained=False,
+        drop_path_rate=float(cfg.get("drop_path_rate", 0.0)),
+    )
     model.load_state_dict(ckpt["model"], strict=True)
     return model.to(device), cfg

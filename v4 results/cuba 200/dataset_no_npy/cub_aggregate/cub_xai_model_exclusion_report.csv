@@ -1,0 +1,7 @@
+model,mean,std,count,xai_included,reason
+convnext_blackbox,0.9066852999187089,0.006422202548868969,5,True,accuracy threshold met
+resnet50,0.844248323888959,0.008532914123952464,5,True,accuracy threshold met
+densenet121,0.8328812484638723,0.005475473929140451,5,True,accuracy threshold met
+efficientnet_b4,0.8449275847339759,0.0038904001823402198,5,True,accuracy threshold met
+vit_small,0.7474653127511107,0.05816022333041621,5,True,accuracy threshold met
+deit_small,0.872667235956059,0.0015287609508063504,5,True,accuracy threshold met

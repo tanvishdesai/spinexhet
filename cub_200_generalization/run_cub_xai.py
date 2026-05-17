@@ -21,6 +21,11 @@ sys.path.insert(0, str(THIS_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 
 from cub_utils import CUBDataset, load_model_from_checkpoint, make_cub_split, read_cub_metadata
+from spine_xnet.evaluation.consensus import (
+    faithfulness_weighted_consensus_map,
+    topk_faithfulness_consensus_map,
+    uniform_consensus_map,
+)
 from spine_xnet.evaluation.metrics import normalize_map
 from spine_xnet.evaluation.stats import bootstrap_ci
 from spine_xnet.evaluation.xai import attention_rollout, attribution_agreement, find_last_conv
@@ -49,6 +54,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--methods", nargs="+", default=DEFAULT_METHODS)
     p.add_argument("--faithfulness-steps", type=int, default=20)
     p.add_argument("--skip-faithfulness", action="store_true")
+    p.add_argument("--skip-consensus", action="store_true")
+    p.add_argument("--consensus-every", type=int, default=10)
+    p.add_argument("--consensus-temperature", type=float, default=1.0)
+    p.add_argument("--topk-consensus-methods", type=int, default=3)
     p.add_argument("--save-maps", action="store_true")
     p.add_argument("--enable-attention-rollout", action="store_true")
     return p.parse_args()
@@ -213,7 +222,12 @@ def _save_df(rows: list[dict], path: Path) -> None:
         print(f"Saved {len(rows)} rows to {path}", flush=True)
 
 
-def _summary(faithfulness_rows: list[dict], agreement_rows: list[dict], skipped: dict[str, str]) -> dict:
+def _summary(
+    faithfulness_rows: list[dict],
+    agreement_rows: list[dict],
+    consensus_rows: list[dict],
+    skipped: dict[str, str],
+) -> dict:
     summary: dict = {"skipped": skipped}
     if agreement_rows:
         df = pd.DataFrame(agreement_rows)
@@ -230,6 +244,15 @@ def _summary(faithfulness_rows: list[dict], agreement_rows: list[dict], skipped:
             .mean()
             .to_dict(orient="index")
         )
+    if consensus_rows:
+        df = pd.DataFrame(consensus_rows)
+        fw_col = "fw_consensus_insertion_auc" if "fw_consensus_insertion_auc" in df else "consensus_insertion_auc"
+        summary["consensus_insertion_auc_mean"] = float(df[fw_col].mean())
+        summary["fw_consensus_insertion_auc_mean"] = float(df[fw_col].mean())
+        for prefix in ["uniform_consensus", "topk_consensus"]:
+            col = f"{prefix}_insertion_auc"
+            if col in df:
+                summary[f"{col}_mean"] = float(df[col].mean())
     return summary
 
 
@@ -256,6 +279,7 @@ def main() -> None:
 
     faithfulness_rows: list[dict] = []
     agreement_rows: list[dict] = []
+    consensus_rows: list[dict] = []
     skipped: dict[str, str] = {}
     start = time.monotonic()
 
@@ -267,6 +291,7 @@ def main() -> None:
             target = int(torch.softmax(model(image), dim=1).argmax(dim=1).item())
 
         attributions: dict[str, np.ndarray] = {}
+        sample_insertions: dict[str, float] = {}
         for method in methods:
             try:
                 attr = run_attribution_method(method, model, image, target)
@@ -291,22 +316,71 @@ def main() -> None:
         if not args.skip_faithfulness:
             for method, attr in attributions.items():
                 try:
+                    deletion_auc = deletion_insertion_auc(
+                        model, image, attr, target, mode="deletion", steps=args.faithfulness_steps
+                    )
+                    insertion_auc = deletion_insertion_auc(
+                        model, image, attr, target, mode="insertion", steps=args.faithfulness_steps
+                    )
+                    sample_insertions[method] = insertion_auc
                     faithfulness_rows.append(
                         {
                             "sample_id": sample_id,
                             "method": method,
                             "label": label,
                             "target": target,
-                            "deletion_auc": deletion_insertion_auc(
-                                model, image, attr, target, mode="deletion", steps=args.faithfulness_steps
-                            ),
-                            "insertion_auc": deletion_insertion_auc(
-                                model, image, attr, target, mode="insertion", steps=args.faithfulness_steps
-                            ),
+                            "deletion_auc": deletion_auc,
+                            "insertion_auc": insertion_auc,
                         }
                     )
                 except Exception:
                     pass
+
+        if (
+            not args.skip_consensus
+            and not args.skip_faithfulness
+            and args.consensus_every > 0
+            and sample_idx % args.consensus_every == 0
+            and len(attributions) >= 3
+            and sample_insertions
+        ):
+            try:
+                fw_map, fw_weights = faithfulness_weighted_consensus_map(
+                    attributions,
+                    sample_insertions,
+                    temperature=args.consensus_temperature,
+                )
+                uniform_map, _ = uniform_consensus_map(attributions)
+                topk_map, topk_weights = topk_faithfulness_consensus_map(
+                    attributions,
+                    sample_insertions,
+                    top_k=args.topk_consensus_methods,
+                    temperature=args.consensus_temperature,
+                )
+                fw_ins_auc = deletion_insertion_auc(
+                    model, image, fw_map, target, mode="insertion", steps=args.faithfulness_steps
+                )
+                uniform_ins_auc = deletion_insertion_auc(
+                    model, image, uniform_map, target, mode="insertion", steps=args.faithfulness_steps
+                )
+                topk_ins_auc = deletion_insertion_auc(
+                    model, image, topk_map, target, mode="insertion", steps=args.faithfulness_steps
+                )
+                consensus_rows.append(
+                    {
+                        "sample_id": sample_id,
+                        "label": label,
+                        "target": target,
+                        "consensus_insertion_auc": fw_ins_auc,
+                        "fw_consensus_insertion_auc": fw_ins_auc,
+                        "uniform_consensus_insertion_auc": uniform_ins_auc,
+                        "topk_consensus_insertion_auc": topk_ins_auc,
+                        "topk_methods": " ".join(topk_weights),
+                        **{f"weight_{k}": v for k, v in fw_weights.items()},
+                    }
+                )
+            except Exception:
+                pass
 
         if (sample_idx + 1) % 50 == 0:
             print(
@@ -320,7 +394,8 @@ def main() -> None:
 
     _save_df(agreement_rows, args.output_dir / "agreement_metrics.csv")
     _save_df(faithfulness_rows, args.output_dir / "faithfulness_metrics.csv")
-    summary = _summary(faithfulness_rows, agreement_rows, skipped)
+    _save_df(consensus_rows, args.output_dir / "consensus_metrics.csv")
+    summary = _summary(faithfulness_rows, agreement_rows, consensus_rows, skipped)
     payload = {"summary": summary, "args": {k: str(v) for k, v in vars(args).items()}}
     with (args.output_dir / "xai_summary_cub.json").open("w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)

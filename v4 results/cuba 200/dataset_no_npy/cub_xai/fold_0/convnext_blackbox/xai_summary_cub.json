@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.41892273329800245,
+    "mean_spearman_ci": [
+      0.4017,
+      0.4365
+    ],
+    "mean_top20_iou": 0.3716184338289997,
+    "mean_top20_iou_ci": [
+      0.3617,
+      0.3811
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.20835746094549723,
+        "insertion_auc": 0.7667873664069315
+      },
+      "gradcam++": {
+        "deletion_auc": 0.33071542167378964,
+        "insertion_auc": 0.6773203118032628
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.08542652850407588,
+        "insertion_auc": 0.7876190933739612
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.11565316171053203,
+        "insertion_auc": 0.7409106370297426
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.08759376162126137,
+        "insertion_auc": 0.784301390769421
+      },
+      "occlusion": {
+        "deletion_auc": 0.20150150611301798,
+        "insertion_auc": 0.8003902425077201
+      }
+    },
+    "consensus_insertion_auc_mean": 0.7985149537966935,
+    "fw_consensus_insertion_auc_mean": 0.7985149537966935,
+    "uniform_consensus_insertion_auc_mean": 0.7882103096519129,
+    "topk_consensus_insertion_auc_mean": 0.8125482039349542
+  },
+  "args": {
+    "model": "convnext_blackbox",
+    "checkpoint": "/kaggle/working/cub_outputs/convnext_blackbox/fold_0/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "0",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_0/convnext_blackbox",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "skip_consensus": "False",
+    "consensus_every": "10",
+    "consensus_temperature": "1.0",
+    "topk_consensus_methods": "3",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

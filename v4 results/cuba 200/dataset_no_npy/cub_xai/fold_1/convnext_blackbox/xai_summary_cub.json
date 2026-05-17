@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.4315213105144966,
+    "mean_spearman_ci": [
+      0.4136,
+      0.4486
+    ],
+    "mean_top20_iou": 0.3808250883639393,
+    "mean_top20_iou_ci": [
+      0.3703,
+      0.3917
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.23639259143640173,
+        "insertion_auc": 0.7795492590486635
+      },
+      "gradcam++": {
+        "deletion_auc": 0.34145795329980444,
+        "insertion_auc": 0.7054208124528183
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.08559193497718919,
+        "insertion_auc": 0.7760176052463345
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.1261680555716327,
+        "insertion_auc": 0.7240803135403281
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.08608152918130055,
+        "insertion_auc": 0.7755020928227411
+      },
+      "occlusion": {
+        "deletion_auc": 0.22676784648983328,
+        "insertion_auc": 0.8127880521123662
+      }
+    },
+    "consensus_insertion_auc_mean": 0.7791520443174763,
+    "fw_consensus_insertion_auc_mean": 0.7791520443174763,
+    "uniform_consensus_insertion_auc_mean": 0.7728155689530589,
+    "topk_consensus_insertion_auc_mean": 0.7930732586662878
+  },
+  "args": {
+    "model": "convnext_blackbox",
+    "checkpoint": "/kaggle/working/cub_outputs/convnext_blackbox/fold_1/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "1",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_1/convnext_blackbox",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "skip_consensus": "False",
+    "consensus_every": "10",
+    "consensus_temperature": "1.0",
+    "topk_consensus_methods": "3",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

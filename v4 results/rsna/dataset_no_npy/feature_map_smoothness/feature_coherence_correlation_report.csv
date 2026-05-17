@@ -1,0 +1,4 @@
+subset,n,pearson_r,pearson_p,spearman_rho,spearman_p,kendall_tau,kendall_p,note
+all_models,6,0.565975232175485,0.24168599847579436,0.3142857142857143,0.5440932944606414,0.3333333333333333,0.46944444444444444,report as exploratory; model-level n is small
+cnn_only,4,0.975547938623621,0.02445206137637901,1.0,0.0,1.0,0.08333333333333333,report as exploratory; model-level n is small
+transformers_only,2,,,,,,,too few models for correlation

@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.4331568071962308,
+    "mean_spearman_ci": [
+      0.4159,
+      0.4505
+    ],
+    "mean_top20_iou": 0.3788930013794916,
+    "mean_top20_iou_ci": [
+      0.3686,
+      0.3897
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.2248286714679856,
+        "insertion_auc": 0.770387561153994
+      },
+      "gradcam++": {
+        "deletion_auc": 0.3240150063737335,
+        "insertion_auc": 0.7213398977757024
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.09659503678496731,
+        "insertion_auc": 0.7841775201358129
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.127097400231125,
+        "insertion_auc": 0.7435066935152402
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.09744085792739468,
+        "insertion_auc": 0.7833970763335977
+      },
+      "occlusion": {
+        "deletion_auc": 0.24255552574388764,
+        "insertion_auc": 0.8127575335795021
+      }
+    },
+    "consensus_insertion_auc_mean": 0.7952453923245775,
+    "fw_consensus_insertion_auc_mean": 0.7952453923245775,
+    "uniform_consensus_insertion_auc_mean": 0.789452680972754,
+    "topk_consensus_insertion_auc_mean": 0.8129662390996236
+  },
+  "args": {
+    "model": "convnext_blackbox",
+    "checkpoint": "/kaggle/working/cub_outputs/convnext_blackbox/fold_2/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "2",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/cub_xai/fold_2/convnext_blackbox",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "skip_faithfulness": "False",
+    "skip_consensus": "False",
+    "consensus_every": "10",
+    "consensus_temperature": "1.0",
+    "topk_consensus_methods": "3",
+    "save_maps": "True",
+    "enable_attention_rollout": "False"
+  }
+}

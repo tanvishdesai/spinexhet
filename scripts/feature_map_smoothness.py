@@ -321,8 +321,62 @@ def main() -> None:
 
     if args.agreement_csv and args.agreement_csv.exists():
         _plot_feature_coherence_vs_agreement(summary_df, args.agreement_csv, args.output_dir)
+        _write_correlation_report(summary_df, args.agreement_csv, args.output_dir)
 
     print(f"\nFeature-map smoothness results saved to {args.output_dir}")
+
+
+def _architecture_family(model_name: str) -> str:
+    if model_name in {"vit_small", "deit_small"}:
+        return "transformer"
+    if model_name.startswith("cbm"):
+        return "cbm"
+    return "cnn"
+
+
+def _write_correlation_report(
+    smooth_df: pd.DataFrame,
+    agreement_csv: Path,
+    output_dir: Path,
+) -> None:
+    from scipy.stats import kendalltau, pearsonr, spearmanr
+
+    agree_df = pd.read_csv(agreement_csv)
+    merged = smooth_df.merge(agree_df, on="model", how="inner")
+    if merged.empty:
+        return
+    merged["architecture_family"] = merged["model"].map(_architecture_family)
+    merged.to_csv(output_dir / "feature_coherence_agreement_merged.csv", index=False)
+
+    rows: list[dict[str, Any]] = []
+    for subset_name, subset in [
+        ("all_models", merged),
+        ("cnn_only", merged[merged["architecture_family"] == "cnn"]),
+        ("transformers_only", merged[merged["architecture_family"] == "transformer"]),
+    ]:
+        if len(subset) < 3:
+            rows.append({"subset": subset_name, "n": len(subset), "note": "too few models for correlation"})
+            continue
+        x = subset["feature_coherence_score"].to_numpy(dtype=float)
+        y = subset["mean_spearman"].to_numpy(dtype=float)
+        r, p = pearsonr(x, y)
+        rho, rho_p = spearmanr(x, y)
+        tau, tau_p = kendalltau(x, y)
+        rows.append(
+            {
+                "subset": subset_name,
+                "n": len(subset),
+                "pearson_r": float(r),
+                "pearson_p": float(p),
+                "spearman_rho": float(rho),
+                "spearman_p": float(rho_p),
+                "kendall_tau": float(tau),
+                "kendall_p": float(tau_p),
+                "note": "report as exploratory; model-level n is small",
+            }
+        )
+    pd.DataFrame(rows).to_csv(output_dir / "feature_coherence_correlation_report.csv", index=False)
+    print(f"Saved feature coherence correlation report to {output_dir / 'feature_coherence_correlation_report.csv'}")
 
 
 def _plot_feature_coherence_vs_agreement(
