@@ -1,6 +1,0 @@
-base_config: ../spinexnet.yaml
-experiment_name: ablation_prototypes_100
-
-model:
-  num_prototypes: 100
-

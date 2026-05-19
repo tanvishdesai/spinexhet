@@ -1,0 +1,4 @@
+,mean_spearman,mean_spearman,mean_top20_iou,mean_top20_iou,fw_consensus_insertion_auc_mean,fw_consensus_insertion_auc_mean,uniform_consensus_insertion_auc_mean,uniform_consensus_insertion_auc_mean,topk_consensus_insertion_auc_mean,topk_consensus_insertion_auc_mean
+,mean,std,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,,,
+efficientnet_b4,0.4111,0.0056,0.3479,0.0058,0.6654,0.0412,0.6614,0.041,0.6795,0.0406

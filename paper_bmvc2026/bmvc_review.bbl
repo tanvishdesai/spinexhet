@@ -1,0 +1,162 @@
+\begin{thebibliography}{20}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abnar and Zuidema(2020)]{abnar2020quantifying}
+Samira Abnar and Willem Zuidema.
+\newblock Quantifying attention flow in transformers.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics}, pages 4190--4197, 2020.
+
+\bibitem[Adebayo et~al.(2018)Adebayo, Gilmer, Muelly, Goodfellow, Hardt, and
+  Kim]{adebayo2018sanity}
+Julius Adebayo, Justin Gilmer, Michael Muelly, Ian Goodfellow, Moritz Hardt,
+  and Been Kim.
+\newblock Sanity checks for saliency maps.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~31, 2018.
+
+\bibitem[B(2026)]{thackshanaramana2026hypothesis}
+Thackshanaramana B.
+\newblock Hypothesis class determines explanation: Why accurate models disagree
+  on feature attribution.
+\newblock \emph{arXiv preprint arXiv:2603.15821}, 2026.
+
+\bibitem[Chattopadhay et~al.(2018)Chattopadhay, Sarkar, Howlader, and
+  Balasubramanian]{chattopadhay2018gradcampp}
+Aditya Chattopadhay, Anirban Sarkar, Prantik Howlader, and Vineeth~N.
+  Balasubramanian.
+\newblock Grad-cam++: Generalized gradient-based visual explanations for deep
+  convolutional networks.
+\newblock In \emph{Proceedings of the IEEE Winter Conference on Applications of
+  Computer Vision}, pages 839--847, 2018.
+
+\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
+  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and
+  Houlsby]{dosovitskiy2021image}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+
+\bibitem[Ghassemi et~al.(2021)Ghassemi, Oakden-Rayner, and
+  Beam]{ghassemi2021false}
+Marzyeh Ghassemi, Luke Oakden-Rayner, and Andrew~L. Beam.
+\newblock The false hope of current approaches to explainable artificial
+  intelligence in health care.
+\newblock \emph{The Lancet Digital Health}, 3\penalty0 (11):\penalty0
+  e745--e750, 2021.
+
+\bibitem[He et~al.(2016)He, Zhang, Ren, and Sun]{he2016resnet}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition.
+\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 770--778, 2016.
+
+\bibitem[Hedstr{\"o}m et~al.(2024)Hedstr{\"o}m, Bommer, Wickstr{\o}m, Samek,
+  Lapuschkin, and H{\"o}hne]{hedstrom2024latec}
+Anna Hedstr{\"o}m, Philine Bommer, Kristoffer~K. Wickstr{\o}m, Wojciech Samek,
+  Sebastian Lapuschkin, and Marina M.-C. H{\"o}hne.
+\newblock Navigating the maze of explainable ai: A systematic approach to
+  evaluating methods and metrics.
+\newblock In \emph{Advances in Neural Information Processing Systems, Datasets
+  and Benchmarks Track}, 2024.
+
+\bibitem[Huang et~al.(2017)Huang, Liu, Van Der~Maaten, and
+  Weinberger]{huang2017densenet}
+Gao Huang, Zhuang Liu, Laurens Van Der~Maaten, and Kilian~Q. Weinberger.
+\newblock Densely connected convolutional networks.
+\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition}, pages 4700--4708, 2017.
+
+\bibitem[Koh et~al.(2020)Koh, Nguyen, Tang, Mussmann, Pierson, Kim, and
+  Liang]{koh2020concept}
+Pang~Wei Koh, Thao Nguyen, Yew~Siang Tang, Stephen Mussmann, Emma Pierson, Been
+  Kim, and Percy Liang.
+\newblock Concept bottleneck models.
+\newblock In \emph{Proceedings of the 37th International Conference on Machine
+  Learning}, pages 5338--5348, 2020.
+
+\bibitem[Krishna et~al.(2022)Krishna, Han, Gu, Pombra, Jabbari, Wu, and
+  Lakkaraju]{krishna2022disagreement}
+Satyapriya Krishna, Tessa Han, Alex Gu, Javin Pombra, Shahin Jabbari, Steven
+  Wu, and Himabindu Lakkaraju.
+\newblock The disagreement problem in explainable machine learning: A
+  practitioner's perspective.
+\newblock \emph{arXiv preprint arXiv:2202.01602}, 2022.
+
+\bibitem[Liu et~al.(2022)Liu, Mao, Wu, Feichtenhofer, Darrell, and
+  Xie]{liu2022convnet}
+Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell,
+  and Saining Xie.
+\newblock A convnet for the 2020s.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision
+  and Pattern Recognition}, pages 11976--11986, 2022.
+
+\bibitem[{Radiological Society of North America}(2024)]{rsna2024lumbar}
+{Radiological Society of North America}.
+\newblock Rsna 2024 lumbar spine degenerative classification ai challenge.
+\newblock
+  \url{https://www.rsna.org/rsnai/ai-image-challenge/lumbar-spine-degenerative-classification-ai-challenge},
+  2024.
+
+\bibitem[Selvaraju et~al.(2017)Selvaraju, Cogswell, Das, Vedantam, Parikh, and
+  Batra]{selvaraju2017gradcam}
+Ramprasaath~R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam,
+  Devi Parikh, and Dhruv Batra.
+\newblock Grad-cam: Visual explanations from deep networks via gradient-based
+  localization.
+\newblock In \emph{Proceedings of the IEEE International Conference on Computer
+  Vision}, pages 618--626, 2017.
+
+\bibitem[Simonyan et~al.(2014)Simonyan, Vedaldi, and
+  Zisserman]{simonyan2014deep}
+Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman.
+\newblock Deep inside convolutional networks: Visualising image classification
+  models and saliency maps.
+\newblock In \emph{International Conference on Learning Representations
+  Workshop}, 2014.
+
+\bibitem[Sundararajan et~al.(2017)Sundararajan, Taly, and
+  Yan]{sundararajan2017axiomatic}
+Mukund Sundararajan, Ankur Taly, and Qiqi Yan.
+\newblock Axiomatic attribution for deep networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine
+  Learning}, pages 3319--3328, 2017.
+
+\bibitem[Tan and Le(2019)]{tan2019efficientnet}
+Mingxing Tan and Quoc Le.
+\newblock Efficientnet: Rethinking model scaling for convolutional neural
+  networks.
+\newblock In \emph{Proceedings of the 36th International Conference on Machine
+  Learning}, pages 6105--6114, 2019.
+
+\bibitem[Touvron et~al.(2021)Touvron, Cord, Douze, Massa, Sablayrolles, and
+  J{\'e}gou]{touvron2021training}
+Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre
+  Sablayrolles, and Herv{\'e} J{\'e}gou.
+\newblock Training data-efficient image transformers and distillation through
+  attention.
+\newblock In \emph{Proceedings of the 38th International Conference on Machine
+  Learning}, pages 10347--10357, 2021.
+
+\bibitem[Wah et~al.(2011)Wah, Branson, Welinder, Perona, and
+  Belongie]{wah2011cub}
+Catherine Wah, Steve Branson, Peter Welinder, Pietro Perona, and Serge
+  Belongie.
+\newblock The caltech-ucsd birds-200-2011 dataset.
+\newblock Technical Report CNS-TR-2011-001, California Institute of Technology,
+  2011.
+
+\bibitem[Zeiler and Fergus(2014)]{zeiler2014visualizing}
+Matthew~D. Zeiler and Rob Fergus.
+\newblock Visualizing and understanding convolutional networks.
+\newblock In \emph{European Conference on Computer Vision}, pages 818--833,
+  2014.
+
+\end{thebibliography}

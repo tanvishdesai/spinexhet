@@ -28,7 +28,12 @@ from spine_xnet.evaluation.consensus import (
 )
 from spine_xnet.evaluation.metrics import normalize_map
 from spine_xnet.evaluation.stats import bootstrap_ci
-from spine_xnet.evaluation.xai import attention_rollout, attribution_agreement, find_last_conv
+from spine_xnet.evaluation.xai import (
+    attention_rollout,
+    attribution_agreement,
+    find_last_conv,
+    normalized_baseline_like,
+)
 
 
 DEFAULT_METHODS = [
@@ -53,6 +58,16 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--max-samples", type=int, default=300)
     p.add_argument("--methods", nargs="+", default=DEFAULT_METHODS)
     p.add_argument("--faithfulness-steps", type=int, default=20)
+    p.add_argument(
+        "--gradient-baseline-mode",
+        choices=["mean", "black", "gray", "white", "blur"],
+        default="mean",
+    )
+    p.add_argument(
+        "--faithfulness-baseline-mode",
+        choices=["mean", "black", "gray", "white", "blur"],
+        default="mean",
+    )
     p.add_argument("--skip-faithfulness", action="store_true")
     p.add_argument("--skip-consensus", action="store_true")
     p.add_argument("--consensus-every", type=int, default=10)
@@ -96,20 +111,36 @@ def _to_numpy_map(attr: torch.Tensor, image_hw: tuple[int, int]) -> np.ndarray:
     return normalize_map(arr)
 
 
-def integrated_gradients(model: torch.nn.Module, image: torch.Tensor, target: int) -> np.ndarray:
+def integrated_gradients(
+    model: torch.nn.Module,
+    image: torch.Tensor,
+    target: int,
+    baseline_mode: str = "mean",
+) -> np.ndarray:
     from captum.attr import IntegratedGradients
 
     wrapped = ImageOnlyWrapper(model).eval()
     ig = IntegratedGradients(wrapped)
-    attr = ig.attribute(image, baselines=torch.zeros_like(image), target=target, n_steps=32)
+    attr = ig.attribute(
+        image,
+        baselines=normalized_baseline_like(image, mode=baseline_mode),
+        target=target,
+        n_steps=32,
+    )
     return _to_numpy_map(attr, image.shape[-2:])
 
 
-def gradient_shap(model: torch.nn.Module, image: torch.Tensor, target: int) -> np.ndarray:
+def gradient_shap(
+    model: torch.nn.Module,
+    image: torch.Tensor,
+    target: int,
+    baseline_mode: str = "mean",
+) -> np.ndarray:
     from captum.attr import GradientShap
 
     wrapped = ImageOnlyWrapper(model).eval()
-    baseline_dist = torch.randn(50, *image.shape[1:], device=image.device) * 0.001
+    baseline = normalized_baseline_like(image, mode=baseline_mode)
+    baseline_dist = baseline.repeat(50, 1, 1, 1) + torch.randn(50, *image.shape[1:], device=image.device) * 0.001
     attr = GradientShap(wrapped).attribute(
         image,
         baselines=baseline_dist,
@@ -159,14 +190,15 @@ def run_attribution_method(
     model: torch.nn.Module,
     image: torch.Tensor,
     target: int,
+    gradient_baseline_mode: str = "mean",
 ) -> np.ndarray:
     key = method.lower()
     if key in {"gradcam", "gradcam++"}:
         return grad_cam_variant(model, image, target, key)
     if key in {"integrated_gradients", "ig"}:
-        return integrated_gradients(model, image, target)
+        return integrated_gradients(model, image, target, baseline_mode=gradient_baseline_mode)
     if key in {"gradient_shap", "gradientshap"}:
-        return gradient_shap(model, image, target)
+        return gradient_shap(model, image, target, baseline_mode=gradient_baseline_mode)
     if key == "occlusion":
         return occlusion_attribution(model, image, target)
     if key in {"guided_backprop", "guidedbackprop", "gbp"}:
@@ -190,6 +222,7 @@ def deletion_insertion_auc(
     target: int,
     mode: str,
     steps: int,
+    baseline_mode: str = "mean",
 ) -> float:
     device = image.device
     _, _, h, w = image.shape
@@ -197,7 +230,7 @@ def deletion_insertion_auc(
     attr = F.interpolate(attr[None, None], size=(h, w), mode="bilinear", align_corners=False)[0, 0]
     order = torch.argsort(attr.flatten(), descending=True)
     total = h * w
-    baseline = torch.zeros_like(image)
+    baseline = normalized_baseline_like(image, mode=baseline_mode)
     scores = []
     fractions = np.linspace(0.0, 1.0, steps + 1)
     for frac in fractions:
@@ -207,7 +240,7 @@ def deletion_insertion_auc(
             mask[order[:k]] = True
         mask = mask.reshape(1, 1, h, w)
         if mode == "deletion":
-            perturbed = image.masked_fill(mask, 0.0)
+            perturbed = torch.where(mask, baseline, image)
         elif mode == "insertion":
             perturbed = torch.where(mask, image, baseline)
         else:
@@ -294,7 +327,13 @@ def main() -> None:
         sample_insertions: dict[str, float] = {}
         for method in methods:
             try:
-                attr = run_attribution_method(method, model, image, target)
+                attr = run_attribution_method(
+                    method,
+                    model,
+                    image,
+                    target,
+                    gradient_baseline_mode=args.gradient_baseline_mode,
+                )
                 attributions[method] = attr
                 if maps_dir:
                     np.save(maps_dir / f"{sample_id}_{method}.npy", attr)
@@ -317,10 +356,22 @@ def main() -> None:
             for method, attr in attributions.items():
                 try:
                     deletion_auc = deletion_insertion_auc(
-                        model, image, attr, target, mode="deletion", steps=args.faithfulness_steps
+                        model,
+                        image,
+                        attr,
+                        target,
+                        mode="deletion",
+                        steps=args.faithfulness_steps,
+                        baseline_mode=args.faithfulness_baseline_mode,
                     )
                     insertion_auc = deletion_insertion_auc(
-                        model, image, attr, target, mode="insertion", steps=args.faithfulness_steps
+                        model,
+                        image,
+                        attr,
+                        target,
+                        mode="insertion",
+                        steps=args.faithfulness_steps,
+                        baseline_mode=args.faithfulness_baseline_mode,
                     )
                     sample_insertions[method] = insertion_auc
                     faithfulness_rows.append(
@@ -358,13 +409,31 @@ def main() -> None:
                     temperature=args.consensus_temperature,
                 )
                 fw_ins_auc = deletion_insertion_auc(
-                    model, image, fw_map, target, mode="insertion", steps=args.faithfulness_steps
+                    model,
+                    image,
+                    fw_map,
+                    target,
+                    mode="insertion",
+                    steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 uniform_ins_auc = deletion_insertion_auc(
-                    model, image, uniform_map, target, mode="insertion", steps=args.faithfulness_steps
+                    model,
+                    image,
+                    uniform_map,
+                    target,
+                    mode="insertion",
+                    steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 topk_ins_auc = deletion_insertion_auc(
-                    model, image, topk_map, target, mode="insertion", steps=args.faithfulness_steps
+                    model,
+                    image,
+                    topk_map,
+                    target,
+                    mode="insertion",
+                    steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 consensus_rows.append(
                     {

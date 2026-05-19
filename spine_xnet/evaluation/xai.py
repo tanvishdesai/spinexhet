@@ -20,6 +20,10 @@ import torch.nn.functional as F
 from spine_xnet.evaluation.metrics import normalize_map, spearman_corr, topk_iou
 
 
+IMAGENET_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_STD = (0.229, 0.224, 0.225)
+
+
 @dataclass
 class AttributionResult:
     method: str
@@ -62,6 +66,45 @@ def _to_numpy_map(attr: torch.Tensor, image_hw: tuple[int, int]) -> np.ndarray:
     return normalize_map(arr)
 
 
+def normalized_baseline_like(
+    image: torch.Tensor,
+    mode: str = "mean",
+    noise_std: float = 0.0,
+) -> torch.Tensor:
+    """Return a baseline tensor in the same normalized space as ``image``.
+
+    The RSNA/CUB pipelines feed ImageNet-normalized tensors into the model.
+    A zero tensor is therefore an ImageNet-mean image, not black. Keeping this
+    explicit makes gradient-attribution audits reproducible and avoids silent
+    baseline changes across IG, GradientSHAP, and insertion/deletion curves.
+    """
+
+    key = mode.lower().replace("-", "_")
+    if key in {"mean", "imagenet_mean", "zero"}:
+        baseline = torch.zeros_like(image)
+    elif key in {"black", "zeros_rgb"}:
+        vals = [(-m / s) for m, s in zip(IMAGENET_MEAN, IMAGENET_STD)]
+        baseline = torch.tensor(vals, dtype=image.dtype, device=image.device).view(1, -1, 1, 1)
+        baseline = baseline.expand_as(image).clone()
+    elif key in {"white", "ones_rgb"}:
+        vals = [((1.0 - m) / s) for m, s in zip(IMAGENET_MEAN, IMAGENET_STD)]
+        baseline = torch.tensor(vals, dtype=image.dtype, device=image.device).view(1, -1, 1, 1)
+        baseline = baseline.expand_as(image).clone()
+    elif key in {"gray", "grey", "midgray", "midgrey"}:
+        vals = [((0.5 - m) / s) for m, s in zip(IMAGENET_MEAN, IMAGENET_STD)]
+        baseline = torch.tensor(vals, dtype=image.dtype, device=image.device).view(1, -1, 1, 1)
+        baseline = baseline.expand_as(image).clone()
+    elif key == "blur":
+        baseline = F.avg_pool2d(image, kernel_size=31, stride=1, padding=15)
+    else:
+        raise ValueError(
+            f"Unknown baseline mode '{mode}'. Expected mean, black, gray, white, or blur."
+        )
+    if noise_std > 0:
+        baseline = baseline + torch.randn_like(baseline) * float(noise_std)
+    return baseline
+
+
 def integrated_gradients(
     model: torch.nn.Module,
     image: torch.Tensor,
@@ -69,6 +112,7 @@ def integrated_gradients(
     level_idx: int,
     target: int,
     steps: int = 32,
+    baseline_mode: str = "mean",
 ) -> np.ndarray:
     from captum.attr import IntegratedGradients
 
@@ -79,7 +123,7 @@ def integrated_gradients(
         return wrapped(x)[:, target]
 
     ig = IntegratedGradients(forward_fn)
-    baseline = torch.zeros_like(image)
+    baseline = normalized_baseline_like(image, mode=baseline_mode)
     attr = ig.attribute(image, baselines=baseline, n_steps=steps)
     return _to_numpy_map(attr, image.shape[-2:])
 
@@ -109,6 +153,8 @@ def gradient_shap(
     target: int,
     n_samples: int = 50,
     stdevs: float = 0.09,
+    baseline_mode: str = "mean",
+    baseline_noise: float = 0.001,
 ) -> np.ndarray:
     """GradientSHAP — SHAP-motivated gradient method with random baselines."""
     from captum.attr import GradientShap
@@ -116,7 +162,10 @@ def gradient_shap(
     model.eval()
     wrapped = FixedMetaModel(model, condition_idx, level_idx)
     gs = GradientShap(wrapped)
-    baseline_dist = torch.randn(n_samples, *image.shape[1:], device=image.device) * 0.001
+    base = normalized_baseline_like(image, mode=baseline_mode)
+    baseline_dist = base.repeat(n_samples, 1, 1, 1)
+    if baseline_noise > 0:
+        baseline_dist = baseline_dist + torch.randn_like(baseline_dist) * float(baseline_noise)
     attr = gs.attribute(
         image,
         baselines=baseline_dist,
@@ -408,6 +457,7 @@ def run_attribution_method(
     condition_idx: int,
     level_idx: int,
     target: int,
+    gradient_baseline_mode: str = "mean",
 ) -> np.ndarray:
     """Dispatch to the appropriate attribution method.
 
@@ -422,7 +472,14 @@ def run_attribution_method(
     if method_key in {"gradcam", "gradcam++", "scorecam"}:
         return grad_cam_variant(model, image, condition_idx, level_idx, target, variant=method_key)
     if method_key in {"ig", "integrated_gradients"}:
-        return integrated_gradients(model, image, condition_idx, level_idx, target)
+        return integrated_gradients(
+            model,
+            image,
+            condition_idx,
+            level_idx,
+            target,
+            baseline_mode=gradient_baseline_mode,
+        )
     if method_key == "lrp":
         return lrp_attribution(model, image, condition_idx, level_idx, target)
     if method_key in {"lime", "shap", "kernelshap", "kernel_shap"}:
@@ -431,7 +488,14 @@ def run_attribution_method(
         return builtin_prototype_attribution(model, image, condition_idx, level_idx, target)
     # ── New methods (Tier 1 Fix 2) ──
     if method_key in {"gradient_shap", "gradientshap"}:
-        return gradient_shap(model, image, condition_idx, level_idx, target)
+        return gradient_shap(
+            model,
+            image,
+            condition_idx,
+            level_idx,
+            target,
+            baseline_mode=gradient_baseline_mode,
+        )
     if method_key == "occlusion":
         return occlusion_attribution(model, image, condition_idx, level_idx, target)
     if method_key in {"guided_backprop", "guidedbackprop", "gbp"}:
@@ -459,6 +523,7 @@ def deletion_insertion_auc(
     target: int,
     mode: str = "deletion",
     steps: int = 20,
+    baseline_mode: str = "mean",
 ) -> float:
     """Faithfulness curve AUC.
 
@@ -472,7 +537,7 @@ def deletion_insertion_auc(
     attr = F.interpolate(attr[None, None], size=(h, w), mode="bilinear", align_corners=False)[0, 0]
     order = torch.argsort(attr.flatten(), descending=True)
     total = h * w
-    baseline = torch.zeros_like(image)
+    baseline = normalized_baseline_like(image, mode=baseline_mode)
     scores = []
     fractions = np.linspace(0.0, 1.0, steps + 1)
     for frac in fractions:
@@ -482,7 +547,7 @@ def deletion_insertion_auc(
             mask[order[:k]] = True
         mask = mask.reshape(1, 1, h, w)
         if mode == "deletion":
-            perturbed = image.masked_fill(mask, 0.0)
+            perturbed = torch.where(mask, baseline, image)
         elif mode == "insertion":
             perturbed = torch.where(mask, image, baseline)
         else:

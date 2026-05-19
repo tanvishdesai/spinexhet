@@ -1,0 +1,1278 @@
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+1
+
+000
+
+Architecture Shapes Explanation:
+003 A Cross-Domain Benchmark of Post-Hoc
+004
+005 XAI Disagreement
+001
+002
+
+006
+007
+
+BMVC 2026 Submission # ??
+
+008
+009
+010
+011
+
+Abstract
+
+012
+013
+
+Post-hoc visual explanation methods are widely used to justify image classifiers, yet
+different methods can highlight contradictory regions for the same prediction. This disagreement is especially risky in clinical vision, where saliency maps may create unwarranted confidence in automated decisions. We study whether such disagreement is merely
+method-specific noise or whether it is systematically shaped by model architecture. We
+introduce S PINE XN ET-B ENCH, a two-domain benchmark spanning RSNA lumbar spine
+magnetic resonance imaging and CUB-200 fine-grained bird classification, with eight
+architectures, seven explanation methods, five-fold validation, expert-coordinate clinical alignment, model-randomization checks, and consensus explanation variants. Across
+both domains, explanation agreement follows a stable three-tier pattern: classic convolutional networks agree most strongly, modern convolutional networks form a domainsensitive middle tier, and patch-based Transformers agree least. On RSNA, DenseNet121 and ResNet-50 reach mean pairwise Spearman agreement of 0.434 and 0.412, while
+ViT-Small and DeiT-Small remain near 0.200 and 0.203 despite competitive classification AUCs. The pattern reproduces on CUB-200, where DenseNet-121 reaches 0.518
+and DeiT-Small remains lowest at 0.220; the cross-domain architecture-rank correlation across the six shared architectures is ρs = 0.886 (p = 0.019). Consensus helps:
+faithfulness-weighted consensus outperforms uniform averaging in the current repaired
+RSNA ablation, and an oracle top-k variant estimates the upper-bound benefit of method
+curation. [REPAIR PLACEHOLDER: replace consensus sentence after RSNA and
+CUB repair notebooks finish] Finally, expert-coordinate overlap remains below 0.28
+IoU for post-hoc maps, while a controlled concept bottleneck model corrects 59.2% of
+previously wrong RSNA predictions through concept intervention. These results argue
+that explanation reliability is not solely a property of the XAI method; it is constrained
+by the inductive bias of the underlying architecture.
+
+014
+015
+016
+017
+018
+019
+020
+021
+022
+023
+024
+025
+026
+027
+028
+029
+030
+031
+032
+033
+034
+035
+036
+037
+
+1
+
+Introduction
+
+038
+039
+
+Deep image classifiers are increasingly evaluated not only by whether they predict correctly,
+but by whether their decisions can be inspected. In radiology, this pressure is direct: a model
+041 that grades lumbar spine degeneration must give clinicians some reason to trust, audit, or
+042 reject its prediction. In general computer vision, the same issue appears as a reproducibility
+043 and model-selection problem. If an explanation method says that a classifier used a bird’s
+040
+
+044
+
+© 2026. The copyright of this document resides with its authors.
+045 It may be distributed unchanged freely in print or electronic forms.
+
+2
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+046
+047
+048
+049
+050
+051
+052
+053
+054
+055
+056
+057
+
+Figure 1: Qualitative explanation disagreement on RSNA lumbar spine MRI. For a fixed 058
+input and prediction, post-hoc explanation methods produce visibly different saliency 059
+patterns. Attention Rollout is Transformer-native and is therefore not applicable to 060
+CNN rows. [REPAIR PLACEHOLDER: replace with high-resolution gallery from 061
+generate_disagreement_gallery_v4.py after RSNA repair completes] The 062
+gallery motivates the benchmark question studied in this paper: whether such disagreement 063
+is method noise alone or whether it is systematically shaped by model architecture.
+064
+065
+066
+
+head while another method says it used the background, the system has not become trans- 067
+parent; it has produced a second layer of uncertainty.
+068
+The disagreement problem in explainable machine learning formalizes this concern: dif- 069
+ferent post-hoc explanation methods can assign incompatible importance to the same input 070
+features for the same model prediction [11]. Prior work has shown that disagreement oc- 071
+curs and that explanation metrics themselves can be unstable [2, 8]. Less is known about 072
+whether disagreement is organized by the classifier architecture. This distinction matters. If
+073
+disagreement is mostly random variation across explanation methods, one might handle it by
+074
+reporting several maps. If it is architecture-conditioned, then explanation reliability becomes
+075
+part of architecture selection itself.
+076
+We test this hypothesis across two visually different domains. The first is the RSNA
+077
+2024 lumbar spine degenerative classification challenge, a safety-critical magnetic resonance
+078
+imaging (MRI) task with five conditions, five disc levels, three severity grades, and expert
+079
+coordinate annotations [13]. The second is CUB-200-2011, a fine-grained natural image
+benchmark with 200 bird categories and 11,788 images [19]. This pairing is intentional: 080
+RSNA supplies the clinical trust setting, while CUB-200 tests whether the same architecture- 081
+082
+disagreement structure survives outside medical imaging.
+Figure 1 illustrates the core phenomenon. The input and prediction are fixed, but the 083
+highlighted evidence changes sharply across explanation methods and architectures. Quan- 084
+titatively, we evaluate Grad-CAM, Grad-CAM++, Integrated Gradients, GradientSHAP, Oc- 085
+clusion, Guided Backpropagation, and Attention Rollout where applicable. We benchmark 086
+ConvNeXt-Tiny, ResNet-50, DenseNet-121, EfficientNet-B4, ViT-Small, DeiT-Small, and 087
+two concept bottleneck variants on RSNA; the six black-box backbones are repeated on 088
+089
+CUB-200.
+Our findings support a three-tier architecture view rather than a strict universal ranking. 090
+Classic convolutional networks, represented by DenseNet-121 and ResNet-50, consistently 091
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+3
+
+show the highest inter-method agreement. Modern convolutional networks, represented by
+ConvNeXt-Tiny and EfficientNet-B4, move between the high- and low-agreement groups
+094 depending on domain. Patch-based Transformers, represented by ViT-Small and DeiT-Small,
+095 consistently show the weakest agreement. DeiT-Small is particularly important because it is
+096 trained by distillation from a convolutional teacher [18]; its low agreement indicates that the
+097 pattern is not a ViT-Small artifact.
+We make three contributions.
+098
+092
+093
+
+099
+
+1. We introduce a cross-domain benchmark for post-hoc XAI disagreement across RSNA
+lumbar spine MRI and CUB-200, covering eight architectures, seven explanation methods, expert-coordinate clinical alignment, and five-fold validation.
+
+100
+101
+102
+103
+
+2. We show that explanation disagreement is architecture-class dependent and statistically stable: classic CNNs form a high-agreement tier, modern CNNs are domainsensitive, and ViT-Small/DeiT-Small form a low-agreement Transformer tier. DenseNet121 exceeds ViT-Small by ∆ρ = 0.234 on RSNA (t-test p = 2.99×10−4 ) and by
+∆ρ = 0.235 on CUB-200 (p = 1.39×10−5 ); RSNA and CUB architecture ranks correlate across the six shared architectures (ρs = 0.886, p = 0.019).
+
+104
+105
+106
+107
+108
+109
+
+3. We evaluate practical responses to disagreement. Faithfulness-weighted consensus
+is compared with uniform averaging, oracle top-k consensus estimates the value of
+method curation, and a controlled concept bottleneck model enables intervention that
+fixes 59.2% of previously wrong RSNA predictions. [REPAIR PLACEHOLDER:
+refresh consensus and ViT-rollout numbers after repair notebooks finish]
+
+110
+111
+112
+113
+114
+115
+116
+117
+
+2
+
+Related Work
+
+118
+
+Post-hoc visual explanations. Saliency methods estimate which input regions support a
+prediction. Gradient-based saliency traces derivatives with respect to pixels [15]; Integrated
+120
+Gradients accumulates gradients from a baseline to the input and satisfies attribution ax121
+ioms [16]; and GradientSHAP estimates SHAP-style attributions through noisy gradient
+122 sampling. Perturbation approaches such as occlusion remove or reveal image regions and
+123 measure the output change [20]. Class activation mapping methods, including Grad-CAM
+124 and Grad-CAM++, localize class evidence through convolutional feature maps [4, 14]. For
+125 Transformers, Attention Rollout aggregates attention flow through layers [1]. These meth126 ods are often treated as interchangeable explanations of a fixed prediction, but their compu127 tational assumptions differ substantially.
+119
+
+128
+129
+
+Explanation disagreement and benchmark reliability. Krishna et al. formalized explanation disagreement and showed that practitioners lack principled ways to resolve conflicting
+131
+explanations [11]. Adebayo et al. demonstrated that some saliency maps can fail model132
+parameter sanity checks [2]. Recent large-scale XAI benchmarks such as LATEC evaluate
+133 explanation methods and metrics across broad method-metric grids [8]. Our focus is or134 thogonal: we ask whether inter-method explanation disagreement is shaped by architecture
+135 class and whether the resulting hierarchy reproduces across clinical and natural image do136 mains. Thus, while LATEC studies metric reliability at scale, our work studies architecture137 conditioned disagreement, cross-domain stability, and expert-coordinate alignment.
+130
+
+4
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+Architecture and inductive bias. Modern vision models differ in spatial inductive bias. 138
+ResNet and DenseNet rely on convolutional locality and hierarchical feature reuse [7, 9]. 139
+EfficientNet uses compound scaling of depth, width, and resolution [17], while ConvNeXt 140
+modernizes convolutional design choices in response to Transformer-era architectures [12]. 141
+ViT and DeiT tokenize images into patches and use self-attention rather than convolutional 142
+spatial aggregation [5, 18]. These architectural differences motivate our central question: do 143
+explanation methods disagree differently when the classifier computation itself changes?
+144
+Concurrent work on hypothesis-class effects reaches a related conclusion from the oppo- 145
+site experimental direction [3]. That work fixes the attribution setting and varies prediction- 146
+equivalent model classes, showing that models from the same hypothesis class produce more 147
+consistent feature attributions than cross-class model pairs. Our study fixes each trained vi- 148
+sion model and varies the explanation method, then tests whether the resulting inter-method 149
+disagreement hierarchy reproduces across clinical MRI and fine-grained natural images. The 150
+overlap is therefore the broad principle that model class is not explanation-neutral; the dif- 151
+ference is that we study within-model method disagreement, cross-domain visual evidence, 152
+and clinical expert-coordinate alignment.
+153
+154
+155
+
+Concept bottlenecks and clinical XAI. Concept bottleneck models (CBMs) predict humaninterpretable concepts before making a final prediction and support intervention by editing 156
+concept values [10]. In health care, however, post-hoc explanations can create a false sense 157
+of interpretability if they do not correspond to clinically meaningful evidence [6]. We there- 158
+fore treat the CBM in this paper as a controlled ante-hoc alternative rather than simply an- 159
+other saliency method. Because our concepts are deterministic and metadata-derived, this 160
+choice isolates architecture and explanation-method effects without adding a noisy concept- 161
+162
+discovery problem.
+163
+164
+
+3
+
+Benchmark Design
+
+3.1
+
+Datasets
+
+165
+166
+167
+168
+169
+
+RSNA lumbar spine MRI. We use the RSNA 2024 Lumbar Spine Degenerative Classifi170
+cation task [13]. The benchmark contains approximately 2,697 patients and condition-level
+crops from lumbar MRI studies. Each crop is associated with one of five degenerative con- 171
+ditions, one of five disc levels, and one of three severity grades. The final manifest contains 172
+48,657 condition-level samples, resized to 224×224 and converted to three-channel tensors 173
+for ImageNet-pretrained backbones. Splits are stratified five-fold patient-level splits. Expert 174
+(x, y) coordinates are used to construct circular region-of-interest masks for clinical align- 175
+176
+ment.
+177
+CUB-200-2011. CUB-200-2011 contains 11,788 natural images across 200 bird species [19].
+We use stratified five-fold validation rather than the official train/test split so that agreement 178
+statistics can be paired across folds. Images are resized and center-cropped to 224×224 at 179
+validation time. The CUB task is included to test whether the RSNA architecture-disagreement180
+181
+hierarchy is a clinical-domain artifact or a more general computer-vision phenomenon.
+An anonymized code and aggregate-output release will be linked with the final submis- 182
+183
+sion. [REPAIR PLACEHOLDER: insert anonymous GitHub/Zenodo URL]
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+5
+
+184
+185
+
+[FIGURE PLACEHOLDER: Benchmark and model-family schematic. Show
+two input domains (RSNA MRI crops and CUB images), the shared
+architecture families (classic CNNs, modern CNNs, Transformers, RSNA-only
+CBM), the seven XAI methods, and the four evaluation outputs: agreement,
+faithfulness/consensus, expert alignment, and concept intervention. Prompt
+details are in notes/FIGURE_AND_TABLE_PLAN.md.]
+
+186
+187
+188
+189
+190
+191
+192
+
+Figure 2: Planned methodology schematic. The final figure should make the experimental
+pipeline legible before the results tables: two domains feed matched architecture families,
+195 each model is evaluated with multiple XAI methods, and the outputs are agreement tiers,
+196 consensus maps, clinical alignment, and CBM intervention.
+193
+194
+
+197
+198
+199
+
+3.2
+
+Architectures
+
+200
+
+RSNA includes eight models: ConvNeXt-Tiny, ResNet-50, DenseNet-121, EfficientNet-B4,
+202 ViT-Small, DeiT-Small, a non-leaky CBM, and a leaky CBM ablation. CUB-200 includes
+203 the six black-box backbones; CBMs are excluded because the RSNA metadata concepts do
+not transfer to bird species recognition. DeiT-Small is the second Transformer and is crucial
+204
+to the benchmark: it has a ViT-like patch-token architecture but a different training paradigm
+205
+based on distillation [18].
+201
+
+206
+
+All RSNA models use condition and level embeddings concatenated to visual features.
+Black-box
+classifiers use a pretrained timm backbone with global average pooling, a hid208
+den
+dimension
+of 256, dropout 0.2, and an optional CORAL-style ordinal head. The CBM
+209
+predicts
+seven
+non-leaky
+metadata-derived concepts from ConvNeXt-Tiny features and con210
+dition/level
+embeddings,
+then
+predicts severity from concept probabilities and metadata. We
+211
+interpret
+this
+as
+a
+controlled
+concept-intervention
+baseline, not as evidence that visual con212
+cept discovery has been solved.
+207
+
+213
+214
+215
+216
+
+3.3
+
+Training Details
+
+217
+218
+
+RSNA models are trained with AdamW, ImageNet normalization, batch size 16, gradient
+accumulation 2, automatic mixed precision, class-weighted cross entropy, and ordinal loss
+220 weight 0.2. Baseline CNNs use learning rate 10−3 and backbone learning rate 10−4 ; DeiT221 Small uses backbone learning rate 5×10−5 . Warmup lasts 5 epochs, early stopping patience
+222 is 10 epochs, and the random seed is 42. RSNA data augmentation includes horizontal
+223 flip, rotation up to 10◦ , small affine translation/scale, brightness/contrast jitter, and random
+224 erasing.
+219
+
+225
+
+CUB models use AdamW with pretrained timm backbones, random resized crop, horizontal flip, mild color jitter, ImageNet normalization, label smoothing, and cosine schedul227 ing. The default recipe trains for 15 epochs with learning rate 3×10−4 . ConvNeXt-Tiny
+228 and DeiT-Small use a gentler recipe: 30–35 epochs, backbone learning rate 5×10−5 , head
+229 learning rate 5×10−4 , warmup 3 epochs, drop-path 0.1, and patience 8.
+226
+
+6
+
+3.4
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+Explanation Methods and Metrics
+
+230
+231
+
+For each trained model and fold, we compute Grad-CAM, Grad-CAM++, Integrated Gradi232
+ents, GradientSHAP, Occlusion, Guided Backpropagation, and Attention Rollout for ViT/DeiT.
+233
+[REPAIR PLACEHOLDER: RSNA repair: update ViT-Small folds 0–1 once Attention
+234
+Rollout rerun completes; current table values use six methods on those two folds and
+235
+all available methods otherwise] Attribution maps are normalized to [0, 1] and resized to
+the input resolution. Inter-method agreement is measured as the mean pairwise Spearman 236
+correlation over flattened attribution maps and as top-20% saliency IoU. Faithfulness is mea- 237
+sured by deletion and insertion curves; higher insertion AUC indicates that revealing highly 238
+attributed pixels restores the target confidence quickly. Clinical alignment on RSNA is the 239
+240
+IoU between the top saliency pixels and an expert-coordinate ROI.
+241
+
+Consensus.
+sus is
+
+Given maps Ai and insertion AUC weights wi , faithfulness-weighted consen∑ wi Ai
+AFW = i
+.
+∑i wi
+
+242
+243
+244
+
+(1) 245
+246
+
+Uniform consensus sets all weights equal. The current top-k variant keeps the k = 3 most
+247
+faithful methods for the same sample before applying the same weighted average. Because
+248
+this selector uses the sample’s own insertion AUC, we treat it as an oracle upper-bound abla249
+tion for the value of method curation, not as a claim that per-sample top-k selection is already
+250
+a low-cost deployment protocol. A deployable variant would select a fixed top-k method
+set per architecture from validation-set mean faithfulness. [REPAIR PLACEHOLDER: 251
+after the CUB repair finishes, replace this sentence with the final global-or-oracle con- 252
+sensus scope] The V4 reruns compute all three variants for DeiT-Small on RSNA and for 253
+ConvNeXt-Tiny/DeiT-Small on CUB; earlier folds retain faithfulness-weighted consensus 254
+255
+only.
+256
+257
+
+4
+
+Results
+
+258
+259
+
+4.1
+
+Classification Competence
+
+260
+261
+
+Before interpreting explanations, each architecture must be a competent classifier. Table 1
+262
+reports five-fold classification performance. On RSNA, ConvNeXt-Tiny achieves the best
+263
+weighted log loss (0.511) and AUC-OVR (0.920), while ViT-Small, DeiT-Small, DenseNet264
+121, and the non-leaky CBM all remain near AUC 0.916–0.920. On CUB-200, all six models
+265
+exceed the 70% XAI inclusion threshold; ConvNeXt-Tiny reaches 90.7% accuracy and DeiT266
+Small reaches 87.3%.
+267
+268
+
+4.2
+
+Architecture-Dependent Explanation Agreement
+
+269
+
+Table 2 is the main result. RSNA agreement separates into three tiers. DenseNet-121 270
+and ResNet-50 are highest, with mean Spearman ρ = 0.434 and 0.412. ConvNeXt-Tiny 271
+and EfficientNet-B4 form a lower, domain-sensitive middle on RSNA, with ρ = 0.283 and 272
+0.223. ViT-Small and DeiT-Small are lowest, with ρ = 0.200 and 0.203. The DeiT result is 273
+not explained by poor classification: DeiT’s RSNA AUC is 0.916, comparable to ViT and 274
+275
+DenseNet.
+
+7
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+276
+
+RSNA
+
+Model
+
+277
+
+AUC-OVR ↑
+
+Acc. ↑
+
+Top-5 ↑
+
+0.511 ± .012
+0.531 ± .015
+0.572 ± .012
+0.650 ± .016
+0.525 ± .017
+0.520 ± .011
+0.539 ± .010
+
+0.920 ± .007
+0.916 ± .003
+0.902 ± .005
+0.882 ± .011
+0.916 ± .006
+0.916 ± .004
+0.920 ± .008
+
+90.7 ± .6
+83.3 ± .6
+84.4 ± .9
+84.5 ± .4
+74.8 ± 5.8
+87.3 ± .2
+–
+
+97.6 ± .2
+95.6 ± .3
+96.4 ± .4
+95.9 ± .2
+90.6 ± 2.9
+96.4 ± .1
+–
+
+278
+
+ConvNeXt-Tiny
+DenseNet-121
+ResNet-50
+EfficientNet-B4
+ViT-Small
+DeiT-Small
+CBM non-leaky
+
+279
+280
+281
+282
+283
+284
+
+CUB-200
+
+WLL ↓
+
+Table 1: Classification performance. RSNA uses weighted log loss (WLL) and one-vs-rest
+multiclass AUC; CUB-200 reports top-1 and top-5 accuracy. All non-CBM architectures are
+287 sufficiently trained for explanation analysis.
+285
+286
+288
+
+0.6
+
+289
+
+Mean pairwise Spearman
+
+290
+291
+292
+293
+294
+295
+296
+297
+
+RSNA spine MRI
+
+0.5
+0.4
+0.3
+0.2
+0.1
+0.0
+
+298
+
+1
+et-12
+
+eN
+Dens
+
+299
+300
+
+CUB-200
+
+t-50
+
+e
+ResN
+
+-T
+NeXt
+
+Conv
+
+t-B4
+EffNe
+
+ViT-S
+
+-S
+DeiT
+
+301
+
+Figure 3: Cross-domain explanation agreement hierarchy. Mean pairwise Spearman agreement between XAI methods shows a stable high-agreement classic CNN tier and a low303
+agreement Transformer tier across RSNA lumbar MRI and CUB-200. ConvNeXt and Effi304
+cientNet are domain-sensitive middle architectures rather than a fixed rank.
+302
+
+305
+306
+307
+
+The CUB-200 results reproduce the same family-level structure. DenseNet-121 remains
+highest (ρ = 0.518), ResNet-50 remains high (ρ = 0.430), and DeiT-Small remains lowest
+309 (ρ = 0.220). ConvNeXt-Tiny moves upward on CUB (ρ = 0.441), confirming that modern
+310 CNNs are domain-sensitive rather than strictly ranked. The rank correlation between RSNA
+311 and CUB across the six shared architectures is ρs = 0.886 (two-tailed p = 0.019, n = 6).
+308
+
+312
+313
+314
+315
+
+4.3
+
+Statistical Tests
+
+The tier differences are robust by paired t-test across the key high-vs-low agreement comparisons (Table 3). On RSNA, DenseNet-121 exceeds ViT-Small by ∆ρ = 0.234 (paired
+317 t = 11.76, p = 2.99×10−4 ) and DeiT-Small by ∆ρ = 0.231 (p = 1.09×10−4 ). CUB-200
+318 shows the same pattern: DenseNet-121 exceeds ViT-Small by ∆ρ = 0.235 (p = 1.39×10−5 )
+319 and DeiT-Small by ∆ρ = 0.298 (p = 3.90×10−6 ). Wilcoxon signed-rank tests, which have
+320 limited resolution at n = 5 folds, also assign all comparisons the minimum attainable two321 sided value of 0.0625.
+316
+
+8
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+Model
+
+DenseNet-121
+ResNet-50
+ConvNeXt-Tiny
+EfficientNet-B4
+ViT-Small
+DeiT-Small
+
+RSNA
+
+CUB-200
+
+Spearman ρ
+
+Top-20 IoU
+
+Spearman ρ
+
+Top-20 IoU
+
+0.434 ± .023
+0.412 ± .023
+0.283 ± .039
+0.223 ± .013
+0.200 ± .028
+0.203 ± .021
+
+0.385 ± .014
+0.329 ± .015
+0.326 ± .026
+0.231 ± .008
+0.239 ± .021
+0.245 ± .013
+
+0.518 ± .017
+0.430 ± .012
+0.441 ± .026
+0.412 ± .005
+0.283 ± .004
+0.220 ± .008
+
+0.411 ± .009
+0.382 ± .006
+0.383 ± .010
+0.348 ± .006
+0.297 ± .005
+0.261 ± .005
+
+322
+323
+324
+325
+326
+327
+328
+329
+
+Table 2: Mean inter-method explanation agreement over five folds for the six architectures 330
+shared across RSNA and CUB-200. Classic CNNs form the high-agreement tier, Transform- 331
+ers form the low-agreement tier, and modern CNNs shift with domain. RSNA-only CBM 332
+agreement is discussed with the intervention results. [REPAIR PLACEHOLDER: replace 333
+334
+ViT-Small RSNA row if RSNA repair changes folds 0–1 Attention Rollout]
+335
+336
+
+Comparison
+
+∆ρ
+
+Paired t
+
+p
+
+337
+
+RSNA DenseNet-121 vs. ViT-Small
+RSNA ResNet-50 vs. ViT-Small
+RSNA DenseNet-121 vs. DeiT-Small
+CUB DenseNet-121 vs. ViT-Small
+CUB ResNet-50 vs. ViT-Small
+CUB DenseNet-121 vs. DeiT-Small
+
+0.234
+0.212
+0.231
+0.235
+0.147
+0.298
+
+11.76
+9.78
+15.22
+25.58
+24.44
+35.17
+
+2.99×10−4
+6.12×10−4
+1.09×10−4
+1.39×10−5
+1.66×10−5
+3.90×10−6
+
+338
+339
+340
+341
+342
+343
+
+Table 3: Fold-paired tests for high-agreement classic CNNs against low-agreement Trans- 344
+345
+formers. All comparisons use five folds.
+346
+347
+
+4.4
+
+Consensus Explanations
+
+348
+349
+350
+
+Consensus explanations are intended to reduce arbitrary dependence on a single XAI method, 351
+but they should not be interpreted as guaranteed improvements over the best individual 352
+method. In the full RSNA faithfulness-weighted analysis, the non-leaky CBM achieves the 353
+highest consensus insertion AUC (0.826 ± 0.034), followed by ConvNeXt-Tiny (0.810 ± 354
+0.020) and DenseNet-121 (0.808 ± 0.024). In the model-dataset pairs where all three con- 355
+sensus variants are currently computed, faithfulness weighting is better than uniform aver- 356
+aging on RSNA DeiT-Small (0.7657 versus 0.7643; paired t-test over samples p = 0.0026), 357
+and oracle top-k consensus is stronger still (0.7853). CUB-200 shows the same trend for the 358
+highest- and lowest-agreement V4 rerun models: oracle top-k reaches 0.821 for ConvNeXt- 359
+Tiny and 0.655 for DeiT-Small, exceeding both faithfulness-weighted and uniform consen- 360
+sus. [REPAIR PLACEHOLDER: CUB repair: replace this paragraph and Figure 4 361
+with all-six-model CUB consensus values]
+362
+This result changes the practical recommendation while preserving a clear distinction 363
+between deployable and oracle variants. Averaging all explanations is not necessarily opti- 364
+mal: low-faithfulness maps can dilute useful evidence. A practical system should select a 365
+fixed set of reliable methods from validation-set faithfulness, while the present oracle top-k 366
+367
+ablation estimates how much room such curation has to help.
+
+9
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+368
+
+0.85
+
+370
+
+0.80
+
+371
+
+0.75
+
+Insertion AUC
+
+369
+
+372
+373
+374
+
+Oracle top-k
+
+0.65
+0.60
+
+376
+
+0.55
+RSNA DeiT-S
+
+378
+
+FW
+
+0.70
+
+375
+377
+
+Uniform
+
+379
+
+Xt-T
+
+CUB ConvNe
+
+CUB DeiT-S
+
+380
+
+Figure 4: Consensus ablation for the current V4 rerun models. Oracle top-k consensus,
+which keeps only the three most faithful methods per sample, estimates the upper-bound
+382
+benefit of method curation and yields higher insertion AUC than uniform or full faithfulness383
+weighted averaging in the current RSNA and CUB ablation set. Error bars indicate fold-level
+384
+standard deviation. [REPAIR PLACEHOLDER: replace after CUB consensus repair
+385
+completes]
+381
+
+386
+387
+388
+
+Intervention statistic
+
+389
+
+Wrong predictions before intervention
+Fixable by any single concept
+Fix rate
+Dominant concept
+Dominant concept fix rate
+
+390
+391
+392
+393
+
+Non-leaky CBM
+
+Leaky CBM
+
+152
+90
+59.2%
+adjacent pathology density
+51.3%
+
+162
+137
+84.6%
+pathology present
+74.1%
+
+Table 4: RSNA concept-intervention summary. The non-leaky CBM is the primary con395 trolled ante-hoc baseline; the leaky CBM is reported only as an ablation because its strongest
+concept encodes pathology presence.
+396
+394
+
+397
+398
+399
+400
+
+4.5
+
+Clinical Alignment and Concept Intervention
+
+Expert-coordinate alignment on RSNA remains low for all post-hoc explanations. The best
+mean consensus expert IoU is DenseNet-121 at 0.275 ± 0.002, followed by ResNet-50 at
+402
+0.265 ± 0.008 and the non-leaky CBM at 0.264 ± 0.017. DeiT-Small reaches 0.255 ± 0.005,
+403
+while ViT-Small is lower at 0.210 ± 0.013. The correct interpretation is not that post-hoc
+404
+maps are clinically aligned, but that even the best average overlap with expert-localized
+405 pathology remains below 30%.
+406
+If disagreement is intrinsic to post-hoc explanations for some architecture classes, ante407
+hoc interpretability becomes attractive not merely for transparency but for stability and in408
+tervention. The concept bottleneck model offers this different interaction mode. On 1,000
+409 RSNA validation samples, the non-leaky CBM is initially correct on 848 samples. Of the
+410 152 wrong predictions, editing one concept can correct 90, yielding a 59.2% fix rate (Ta411 ble 4). The most useful concept is adjacent pathology density, which alone fixes 51.3% of
+412 the wrong cases. The leaky CBM achieves a higher intervention fix rate, but its dominant
+413 concept encodes pathology presence and is therefore treated only as an ablation.
+401
+
+10
+
+4.6
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+Negative and Diagnostic Results
+
+414
+415
+
+Two negative results are important for interpreting the benchmark. First, feature-map coher- 416
+ence did not explain the full architecture hierarchy: the correlation between feature coher- 417
+ence and agreement is weak across all architectures, though it matches the CNN ordering
+418
+more closely. This suggests that Transformer disagreement is not captured by smoothness of
+419
+intermediate features alone. Second, EfficientNet-B4 remains a domain-sensitive middle-tier
+420
+architecture rather than a failed run: an audit of the initially suspicious Integrated Gradients
+421
+and GradientSHAP scores confirmed non-identical maps across all folds, with details moved
+422
+to the supplementary material.
+423
+424
+
+5
+
+Discussion
+
+425
+426
+
+The central lesson is that explanation reliability is not solely a property of the XAI method; 427
+it is constrained by the inductive bias of the underlying architecture. The claim is empirical, 428
+not causal proof: we do not show that architecture alone determines saliency. However, 429
+across two domains, multiple folds, and independently trained backbones, architecture class 430
+is a strong organizing factor for inter-method agreement. This has practical consequences. A 431
+high-performing classifier can still be a poor candidate for post-hoc explanation if its saliency 432
+433
+methods disagree severely.
+The Transformer result is the most stable family-level finding. ViT-Small and DeiT- 434
+Small both occupy the low-agreement tier on RSNA and CUB-200. DeiT’s low agreement 435
+is especially informative because distillation from a convolutional teacher does not make its 436
+explanations CNN-like. A plausible mechanism is that patch tokenization weakens the local 437
+spatial continuity that CAM and gradient methods exploit, while self-attention creates non- 438
+local evidence pathways that different attribution families interrogate differently. In contrast, 439
+DenseNet and ResNet preserve stronger convolutional locality and hierarchical feature reuse, 440
+which may stabilize where multiple attribution methods place evidence. Attention Rollout 441
+partly addresses this by using architecture-native attention flow, but the broader inter-method 442
+disagreement remains.
+443
+The domain-sensitive middle tier is also informative. EfficientNet shifts from low agree- 444
+ment on RSNA to a stronger middle position on CUB-200, and ConvNeXt similarly im- 445
+proves on CUB. This rank movement is consistent with the three-tier claim rather than a 446
+contradiction: compound scaling and modern convolutional design may behave differently
+447
+on small, low-contrast MRI crops than on rich-texture natural images. The result cautions
+448
+against strict architecture rankings while supporting architecture class as an organizing fac449
+tor.
+450
+The consensus experiments show that resolving disagreement is not as simple as aver451
+aging every map. Faithfulness-weighted consensus is a principled baseline, but oracle top-k
+consensus performs better in the current ablation set. This suggests a general deployment 452
+rule: when explanations disagree, first identify methods that are faithful for the model and 453
+domain on validation data, then combine only that curated subset. The oracle result should 454
+455
+be read as evidence that curation matters, not as a finished inference-time protocol.
+The clinical results argue for caution. Post-hoc saliency maps overlap expert-coordinate 456
+regions less than 30% of the time on average. This is not enough to support uncritical clinical 457
+deployment. The CBM result is useful because it shifts the user interaction from viewing a 458
+heatmap to editing a concept and observing the prediction change. Still, because our CBM 459
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+460
+461
+
+11
+
+concepts are deterministic metadata-derived concepts, the result should be read as evidence
+for controlled concept intervention rather than as a solved visual concept-learning system.
+
+462
+463
+464
+
+6
+
+Limitations
+
+465
+
+The benchmark includes two Transformer architectures. ViT-Small and DeiT-Small are sufficient to rule out a single-model artifact, but Swin, CaiT, or hierarchical Transformers would
+467
+strengthen family-level claims. CUB consensus variants are being recomputed for the older
+468
+CUB runs; until that repair completes, oracle top-k claims are restricted to the model-dataset
+469
+pairs with all three variants. [REPAIR PLACEHOLDER: remove this limitation after
+470
+repair_v4_cub_consensus.ipynb completes and tables are refreshed] RSNA ex471
+pert alignment uses coordinate-derived circular masks rather than dense radiologist segmen472
+tations. RSNA images cannot be redistributed freely under competition constraints, though
+473
+the code, CUB pipeline, configurations, and aggregate outputs are release-ready. [REPAIR
+474
+PLACEHOLDER: insert anonymous code/output URL before submission]
+466
+
+475
+476
+477
+
+7
+
+Conclusion
+
+478
+
+Post-hoc explanation disagreement is not merely a property of explanation methods in isolation. In our two-domain benchmark, architecture class strongly structures whether those
+481 methods agree. Classic convolutional networks produce comparatively stable explanations,
+482 modern convolutional networks are domain-sensitive, and patch-based Transformers show
+483 consistently low agreement even when classification performance is competitive. Consen484 sus can reduce the burden of choosing a single map, but the oracle top-k ablation shows
+485 that curation is more promising than unfiltered averaging. In safety-critical settings, low
+486 expert-coordinate overlap makes ante-hoc and intervention-based interpretability especially
+487 important. Architecture-aware explanation evaluation should therefore become part of model
+selection, not an afterthought applied after accuracy has already chosen the model.
+488
+479
+480
+
+489
+490
+491
+492
+493
+494
+
+References
+[1] Samira Abnar and Willem Zuidema. Quantifying attention flow in transformers. In
+Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 4190–4197, 2020.
+
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+
+[2] Julius Adebayo, Justin Gilmer, Michael Muelly, Ian Goodfellow, Moritz Hardt, and
+Been Kim. Sanity checks for saliency maps. In Advances in Neural Information Processing Systems, volume 31, 2018.
+[3] Thackshanaramana B. Hypothesis class determines explanation: Why accurate models
+disagree on feature attribution. arXiv preprint arXiv:2603.15821, 2026.
+[4] Aditya Chattopadhay, Anirban Sarkar, Prantik Howlader, and Vineeth N. Balasubramanian. Grad-cam++: Generalized gradient-based visual explanations for deep convolutional networks. In Proceedings of the IEEE Winter Conference on Applications of
+Computer Vision, pages 839–847, 2018.
+
+12
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+[5] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiao- 506
+hua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, 507
+Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby. An image is worth 16x16 words: 508
+Transformers for image recognition at scale. In International Conference on Learning 509
+Representations, 2021.
+510
+511
+
+[6] Marzyeh Ghassemi, Luke Oakden-Rayner, and Andrew L. Beam. The false hope of 512
+current approaches to explainable artificial intelligence in health care. The Lancet Dig- 513
+ital Health, 3(11):e745–e750, 2021.
+514
+515
+
+[7] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for
+516
+image recognition. In Proceedings of the IEEE Conference on Computer Vision and
+517
+Pattern Recognition, pages 770–778, 2016.
+518
+
+[8] Anna Hedström, Philine Bommer, Kristoffer K. Wickstrøm, Wojciech Samek, Sebas- 519
+tian Lapuschkin, and Marina M.-C. Höhne. Navigating the maze of explainable ai: A 520
+systematic approach to evaluating methods and metrics. In Advances in Neural Infor- 521
+522
+mation Processing Systems, Datasets and Benchmarks Track, 2024.
+523
+
+[9] Gao Huang, Zhuang Liu, Laurens Van Der Maaten, and Kilian Q. Weinberger. Densely 524
+connected convolutional networks. In Proceedings of the IEEE Conference on Com- 525
+puter Vision and Pattern Recognition, pages 4700–4708, 2017.
+526
+527
+
+[10] Pang Wei Koh, Thao Nguyen, Yew Siang Tang, Stephen Mussmann, Emma Pierson, 528
+Been Kim, and Percy Liang. Concept bottleneck models. In Proceedings of the 37th
+529
+International Conference on Machine Learning, pages 5338–5348, 2020.
+530
+
+[11] Satyapriya Krishna, Tessa Han, Alex Gu, Javin Pombra, Shahin Jabbari, Steven Wu, 531
+and Himabindu Lakkaraju. The disagreement problem in explainable machine learning: 532
+533
+A practitioner’s perspective. arXiv preprint arXiv:2202.01602, 2022.
+534
+
+[12] Zhuang Liu, Hanzi Mao, Chao-Yuan Wu, Christoph Feichtenhofer, Trevor Darrell, and 535
+Saining Xie. A convnet for the 2020s. In Proceedings of the IEEE/CVF Conference on 536
+537
+Computer Vision and Pattern Recognition, pages 11976–11986, 2022.
+538
+
+[13] Radiological
+Society
+of
+North
+America.
+Rsna
+2024
+lum- 539
+bar
+spine
+degenerative
+classification
+ai
+challenge.
+https: 540
+//www.rsna.org/rsnai/ai-image-challenge/
+541
+lumbar-spine-degenerative-classification-ai-challenge,
+542
+2024.
+543
+544
+
+[14] Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam,
+545
+Devi Parikh, and Dhruv Batra. Grad-cam: Visual explanations from deep networks via
+546
+gradient-based localization. In Proceedings of the IEEE International Conference on
+547
+Computer Vision, pages 618–626, 2017.
+548
+
+[15] Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. Deep inside convolutional 549
+networks: Visualising image classification models and saliency maps. In International 550
+551
+Conference on Learning Representations Workshop, 2014.
+
+AUTHOR(S): ARCHITECTURE SHAPES EXPLANATION
+
+13
+
+[16] Mukund Sundararajan, Ankur Taly, and Qiqi Yan. Axiomatic attribution for deep networks. In Proceedings of the 34th International Conference on Machine Learning,
+pages 3319–3328, 2017.
+554
+552
+553
+555
+
+[17] Mingxing Tan and Quoc Le. Efficientnet: Rethinking model scaling for convolutional
+neural networks. In Proceedings of the 36th International Conference on Machine
+557
+Learning, pages 6105–6114, 2019.
+556
+558
+
+[18] Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles, and Hervé Jégou. Training data-efficient image transformers and distillation
+through attention. In Proceedings of the 38th International Conference on Machine
+561
+Learning, pages 10347–10357, 2021.
+562
+559
+560
+
+563
+
+[19] Catherine Wah, Steve Branson, Peter Welinder, Pietro Perona, and Serge Belongie. The
+caltech-ucsd birds-200-2011 dataset. Technical Report CNS-TR-2011-001, California
+565
+Institute of Technology, 2011.
+564
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+
+[20] Matthew D. Zeiler and Rob Fergus. Visualizing and understanding convolutional networks. In European Conference on Computer Vision, pages 818–833, 2014.
+
+

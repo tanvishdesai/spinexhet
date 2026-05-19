@@ -1,0 +1,66 @@
+{
+  "summary": {
+    "skipped": {},
+    "mean_spearman": 0.40407545526117883,
+    "mean_spearman_ci": [
+      0.3961,
+      0.4117
+    ],
+    "mean_top20_iou": 0.34007794311697703,
+    "mean_top20_iou_ci": [
+      0.3335,
+      0.3462
+    ],
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.11643747273061035,
+        "insertion_auc": 0.6410597518152256
+      },
+      "gradcam++": {
+        "deletion_auc": 0.11742515099821685,
+        "insertion_auc": 0.641696638850408
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.05668430482727005,
+        "insertion_auc": 0.5680158695019466
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.12004019342104705,
+        "insertion_auc": 0.42954328416466525
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.06685610854580834,
+        "insertion_auc": 0.543763225204663
+      },
+      "occlusion": {
+        "deletion_auc": 0.2084209453234944,
+        "insertion_auc": 0.6680174605911501
+      }
+    },
+    "consensus_insertion_auc_mean": 0.6540799320180668,
+    "fw_consensus_insertion_auc_mean": 0.6540799320180668,
+    "uniform_consensus_insertion_auc_mean": 0.6522651839636577,
+    "topk_consensus_insertion_auc_mean": 0.6587522087190881
+  },
+  "args": {
+    "model": "efficientnet_b4",
+    "checkpoint": "/kaggle/input/datasets/tinkledwivedi/train-eval-xai-cub-efficientnet-b4-models/cub_outputs/efficientnet_b4/fold_4/best.pt",
+    "cub_root": "/kaggle/input/datasets/wenewone/cub2002011/CUB_200_2011",
+    "fold": "4",
+    "n_folds": "5",
+    "output_dir": "/kaggle/working/v4_repair_cub_consensus/cub_xai/fold_4/efficientnet_b4",
+    "image_size": "224",
+    "max_samples": "300",
+    "methods": "['gradcam', 'gradcam++', 'integrated_gradients', 'gradient_shap', 'occlusion', 'guided_backprop']",
+    "faithfulness_steps": "20",
+    "gradient_baseline_mode": "mean",
+    "faithfulness_baseline_mode": "mean",
+    "skip_faithfulness": "False",
+    "skip_consensus": "False",
+    "consensus_every": "10",
+    "consensus_temperature": "1.0",
+    "topk_consensus_methods": "3",
+    "save_maps": "False",
+    "enable_attention_rollout": "False"
+  }
+}

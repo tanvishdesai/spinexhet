@@ -1,0 +1,4 @@
+,log_loss,log_loss,accuracy,accuracy,balanced_accuracy,balanced_accuracy,macro_f1,macro_f1,top5_accuracy,top5_accuracy
+,mean,std,mean,std,mean,std,mean,std,mean,std
+model,,,,,,,,,,
+efficientnet_b4,0.7672,0.015,0.8449,0.0039,0.8453,0.0041,0.8432,0.0038,0.9589,0.0017

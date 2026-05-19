@@ -1,0 +1,11 @@
+{
+  "fold": 0,
+  "checkpoint": "/kaggle/input/datasets/tanvishdesai/train-eval-xai-cbm-leaky-models/outputs/baseline_efficientnet_b4/fold_0/best.pt",
+  "baseline_modes": [
+    "mean",
+    "black",
+    "gray"
+  ],
+  "all_pixel_identical": false,
+  "summary_csv": "/kaggle/working/v4_repair_rsna/efficientnet_gradient_audit/fold_0/efficientnet_gradient_audit_summary_fold_0.csv"
+}

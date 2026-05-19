@@ -73,7 +73,10 @@ def aggregate_classification(eval_root: Path, output_dir: Path, models: list[str
     df["fold_idx"] = df["fold"].str.extract(r"(\d+)").astype(int)
     df = df.sort_values(["model", "fold_idx"]).drop(columns=["fold_idx"])
     df.to_csv(output_dir / "cub_classification_metrics_by_fold.csv", index=False)
-    metric_cols = ["log_loss", "accuracy", "balanced_accuracy", "macro_f1", "top5_accuracy"]
+    metric_cols = [c for c in ["log_loss", "accuracy", "balanced_accuracy", "macro_f1", "top5_accuracy"] if c in df]
+    if not metric_cols:
+        print("No numeric CUB classification metrics found to summarize.")
+        return df
     summary = df.groupby("model")[metric_cols].agg(["mean", "std"]).round(4)
     summary.to_csv(output_dir / "cub_classification_metrics_mean_std.csv")
     print(summary)
@@ -149,6 +152,17 @@ def aggregate_xai(xai_root: Path, output_dir: Path, models: list[str]) -> pd.Dat
         ]
         if col in df and df[col].notna().any()
     ]
+    if not metric_cols:
+        print(
+            "No numeric CUB XAI metrics found to summarize. "
+            "This usually means all requested attribution methods were skipped; "
+            "check that captum and grad-cam are installed."
+        )
+        (output_dir / "cub_xai_summary_mean_std.csv").write_text(
+            "note\nNo numeric CUB XAI metrics found; check skipped methods and dependencies.\n",
+            encoding="utf-8",
+        )
+        return df
     summary = df.groupby("model")[metric_cols].agg(["mean", "std"]).round(4)
     summary.to_csv(output_dir / "cub_xai_summary_mean_std.csv")
     print(summary)
@@ -177,7 +191,7 @@ def make_plots(classification: pd.DataFrame, xai: pd.DataFrame, output_dir: Path
         fig.savefig(fig_dir / "cub_classification_accuracy.png", dpi=300, bbox_inches="tight")
         plt.close(fig)
 
-    if not xai.empty:
+    if not xai.empty and "mean_spearman" in xai and xai["mean_spearman"].notna().any():
         xai_summary = xai.groupby("model")["mean_spearman"].agg(["mean", "std"]).reindex(models).dropna()
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.bar(xai_summary.index, xai_summary["mean"], yerr=xai_summary["std"], color="#59a14f", capsize=4)

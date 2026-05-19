@@ -73,6 +73,21 @@ def parse_args() -> argparse.Namespace:
                  "gradient_shap", "occlusion", "guided_backprop"],
     )
     p.add_argument("--faithfulness-steps", type=int, default=20)
+    p.add_argument(
+        "--gradient-baseline-mode",
+        choices=["mean", "black", "gray", "white", "blur"],
+        default="mean",
+        help=(
+            "Baseline for Integrated Gradients and GradientSHAP in normalized "
+            "input space. 'mean' is the historical zero tensor."
+        ),
+    )
+    p.add_argument(
+        "--faithfulness-baseline-mode",
+        choices=["mean", "black", "gray", "white", "blur"],
+        default="mean",
+        help="Baseline for insertion/deletion perturbations in normalized input space.",
+    )
     p.add_argument("--crop-root", type=Path, default=None)
     p.add_argument("--cache-dir", type=Path, default=None)
     p.add_argument("--save-maps", action="store_true", help="Save attribution maps as .npy")
@@ -204,7 +219,13 @@ def main() -> None:
         for method in methods:
             try:
                 attr = run_attribution_method(
-                    method, model, batch["image"], condition_idx, level_idx, target,
+                    method,
+                    model,
+                    batch["image"],
+                    condition_idx,
+                    level_idx,
+                    target,
+                    gradient_baseline_mode=args.gradient_baseline_mode,
                 )
                 attributions[method] = attr
                 if maps_dir:
@@ -223,10 +244,12 @@ def main() -> None:
                     del_auc = deletion_insertion_auc(
                         model, batch["image"], attr, condition_idx, level_idx, target,
                         mode="deletion", steps=args.faithfulness_steps,
+                        baseline_mode=args.faithfulness_baseline_mode,
                     )
                     ins_auc = deletion_insertion_auc(
                         model, batch["image"], attr, condition_idx, level_idx, target,
                         mode="insertion", steps=args.faithfulness_steps,
+                        baseline_mode=args.faithfulness_baseline_mode,
                     )
                     faithfulness_rows.append({
                         "sample_id": sample_id, "method": method,
@@ -290,6 +313,7 @@ def main() -> None:
                         sample_insertions[method] = deletion_insertion_auc(
                             model, batch["image"], attr, condition_idx, level_idx, target,
                             mode="insertion", steps=args.faithfulness_steps,
+                            baseline_mode=args.faithfulness_baseline_mode,
                         )
 
                 fw_map, fw_weights = faithfulness_weighted_consensus_map(
@@ -308,14 +332,17 @@ def main() -> None:
                 fw_ins_auc = deletion_insertion_auc(
                     model, batch["image"], fw_map, condition_idx, level_idx, target,
                     mode="insertion", steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 uniform_ins_auc = deletion_insertion_auc(
                     model, batch["image"], uniform_map, condition_idx, level_idx, target,
                     mode="insertion", steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 topk_ins_auc = deletion_insertion_auc(
                     model, batch["image"], topk_map, condition_idx, level_idx, target,
                     mode="insertion", steps=args.faithfulness_steps,
+                    baseline_mode=args.faithfulness_baseline_mode,
                 )
                 fw_expert = expert_roi_alignment(fw_map, expert_mask)
                 uniform_expert = expert_roi_alignment(uniform_map, expert_mask)

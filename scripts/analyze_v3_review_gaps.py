@@ -22,15 +22,16 @@ import pandas as pd
 from scipy.stats import kendalltau, spearmanr, ttest_rel, wilcoxon
 
 
-DEFAULT_RSNA_ROOT = Path("v3 resultd/rsna/dataset_no_npy")
-DEFAULT_CUB_ROOT = Path("v3 resultd/cuba/dataset_no_npy")
+DEFAULT_RSNA_ROOT = Path("artifacts/results/archive/v3/rsna/dataset_no_npy")
+DEFAULT_CUB_ROOT = Path("artifacts/results/archive/v3/cuba/dataset_no_npy")
+DEFAULT_OUTPUT_DIR = Path("artifacts/analysis/review_gap_analysis/v3_review_gap_analysis")
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Analyze V3 review gap statistics.")
     p.add_argument("--rsna-root", type=Path, default=DEFAULT_RSNA_ROOT)
     p.add_argument("--cub-root", type=Path, default=DEFAULT_CUB_ROOT)
-    p.add_argument("--output-dir", type=Path, default=Path("review_gap_analysis"))
+    p.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     p.add_argument("--cub-min-accuracy", type=float, default=0.70)
     return p.parse_args()
 

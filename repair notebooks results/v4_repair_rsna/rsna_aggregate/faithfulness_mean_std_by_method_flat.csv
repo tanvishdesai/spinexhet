@@ -1,0 +1,14 @@
+model,method,deletion_auc_mean,deletion_auc_std,insertion_auc_mean,insertion_auc_std
+efficientnet_b4,gradcam,0.4446,0.0561,0.7285,0.0368
+efficientnet_b4,gradcam++,0.477,0.056,0.7165,0.0379
+efficientnet_b4,gradient_shap,0.4619,0.0533,0.5369,0.0564
+efficientnet_b4,guided_backprop,0.474,0.0507,0.4682,0.054
+efficientnet_b4,integrated_gradients,0.4578,0.0507,0.4915,0.0549
+efficientnet_b4,occlusion,0.4821,0.0583,0.6689,0.0419
+vit_small,attention_rollout,0.5193,0.0212,0.7759,0.0167
+vit_small,gradcam,0.6174,0.0222,0.6727,0.0003
+vit_small,gradcam++,0.615,0.0068,0.6775,0.0005
+vit_small,gradient_shap,0.4488,0.0297,0.7452,0.0199
+vit_small,guided_backprop,0.4771,0.0119,0.7419,0.0132
+vit_small,integrated_gradients,0.4479,0.0298,0.7452,0.0202
+vit_small,occlusion,0.4827,0.0138,0.7792,0.0194

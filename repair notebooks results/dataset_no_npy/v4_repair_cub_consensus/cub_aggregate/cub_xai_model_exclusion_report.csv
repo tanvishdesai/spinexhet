@@ -1,0 +1,2 @@
+model,mean,std,count,xai_included,reason
+efficientnet_b4,0.8449275847339759,0.0038904001823402198,5.0,True,accuracy threshold met

@@ -1,0 +1,11 @@
+{
+  "fold": 3,
+  "checkpoint": "/kaggle/input/datasets/shilpavdesai/train-eval-xai-efficientnet-b4-models/outputs/baseline_efficientnet_b4/fold_3/best.pt",
+  "baseline_modes": [
+    "mean",
+    "black",
+    "gray"
+  ],
+  "all_pixel_identical": false,
+  "summary_csv": "/kaggle/working/v4_repair_rsna/efficientnet_gradient_audit/fold_3/efficientnet_gradient_audit_summary_fold_3.csv"
+}

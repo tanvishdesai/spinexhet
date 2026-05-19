@@ -1,0 +1,93 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\bibstyle{plainnat}
+\citation{krishna2022disagreement}
+\citation{adebayo2018sanity}
+\citation{hedstrom2024latec}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{rsna2024lumbar}
+\citation{wah2011cub}
+\citation{touvron2021training}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Qualitative explanation disagreement on RSNA lumbar spine MRI. For a fixed fold-0 sample and target prediction, post-hoc explanation methods produce visibly different saliency patterns across DenseNet-121 and ViT-Small. Attention Rollout is Transformer-native and is therefore not applicable to CNN rows. The gallery motivates the benchmark question studied in this paper: whether such disagreement is method noise alone or whether it is systematically shaped by model architecture.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig:gallery}{{1}{2}{Qualitative explanation disagreement on RSNA lumbar spine MRI. For a fixed fold-0 sample and target prediction, post-hoc explanation methods produce visibly different saliency patterns across DenseNet-121 and ViT-Small. Attention Rollout is Transformer-native and is therefore not applicable to CNN rows. The gallery motivates the benchmark question studied in this paper: whether such disagreement is method noise alone or whether it is systematically shaped by model architecture}{figure.1}{}}
+\citation{simonyan2014deep}
+\citation{sundararajan2017axiomatic}
+\citation{zeiler2014visualizing}
+\citation{chattopadhay2018gradcampp}
+\citation{selvaraju2017gradcam}
+\citation{abnar2020quantifying}
+\citation{krishna2022disagreement}
+\citation{adebayo2018sanity}
+\citation{hedstrom2024latec}
+\citation{he2016resnet}
+\citation{huang2017densenet}
+\citation{tan2019efficientnet}
+\citation{liu2022convnet}
+\citation{dosovitskiy2021image}
+\citation{touvron2021training}
+\citation{thackshanaramana2026hypothesis}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{3}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Post-hoc visual explanations.}{3}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Explanation disagreement and benchmark reliability.}{3}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Architecture and inductive bias.}{3}{section*.3}\protected@file@percent }
+\citation{koh2020concept}
+\citation{ghassemi2021false}
+\citation{rsna2024lumbar}
+\citation{wah2011cub}
+\citation{touvron2021training}
+\@writefile{toc}{\contentsline {paragraph}{Concept bottlenecks.}{4}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Benchmark Design}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Datasets}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Architectures}{4}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Benchmark schematic. RSNA lumbar MRI crops and CUB-200 bird images feed matched architecture families, after which post-hoc explanation maps are evaluated for inter-method agreement, faithfulness and consensus behavior, clinical expert-coordinate alignment, and concept intervention when a CBM is available.}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:method}{{2}{5}{Benchmark schematic. RSNA lumbar MRI crops and CUB-200 bird images feed matched architecture families, after which post-hoc explanation maps are evaluated for inter-method agreement, faithfulness and consensus behavior, clinical expert-coordinate alignment, and concept intervention when a CBM is available}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Training Details}{5}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Explanation Methods and Metrics}{5}{subsection.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Classification performance. RSNA uses weighted log loss (WLL) and one-vs-rest multiclass AUC; CUB-200 reports top-1 and top-5 accuracy. All non-CBM architectures are sufficiently trained for explanation analysis.}}{6}{table.1}\protected@file@percent }
+\newlabel{tab:classification}{{1}{6}{Classification performance. RSNA uses weighted log loss (WLL) and one-vs-rest multiclass AUC; CUB-200 reports top-1 and top-5 accuracy. All non-CBM architectures are sufficiently trained for explanation analysis}{table.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Consensus.}{6}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Classification Competence}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Cross-domain explanation agreement hierarchy. Mean pairwise Spearman agreement between XAI methods shows a stable high-agreement classic CNN tier and a low-agreement Transformer tier across RSNA lumbar MRI and CUB-200. ConvNeXt and EfficientNet are domain-sensitive middle architectures rather than a fixed rank.}}{7}{figure.3}\protected@file@percent }
+\newlabel{fig:agreement}{{3}{7}{Cross-domain explanation agreement hierarchy. Mean pairwise Spearman agreement between XAI methods shows a stable high-agreement classic CNN tier and a low-agreement Transformer tier across RSNA lumbar MRI and CUB-200. ConvNeXt and EfficientNet are domain-sensitive middle architectures rather than a fixed rank}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Mean inter-method explanation agreement over five folds for the six architectures shared across RSNA and CUB-200. Classic CNNs form the high-agreement tier, Transformers form the low-agreement tier, and modern CNNs shift with domain. RSNA-only CBM agreement is discussed with the intervention results.}}{7}{table.2}\protected@file@percent }
+\newlabel{tab:agreement}{{2}{7}{Mean inter-method explanation agreement over five folds for the six architectures shared across RSNA and CUB-200. Classic CNNs form the high-agreement tier, Transformers form the low-agreement tier, and modern CNNs shift with domain. RSNA-only CBM agreement is discussed with the intervention results}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Architecture-Dependent Explanation Agreement}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Fold-paired tests for high-agreement classic CNNs against low-agreement Transformers. All comparisons use five folds.}}{8}{table.3}\protected@file@percent }
+\newlabel{tab:stats}{{3}{8}{Fold-paired tests for high-agreement classic CNNs against low-agreement Transformers. All comparisons use five folds}{table.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Statistical Tests}{8}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Consensus Explanations}{8}{subsection.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces CUB-200 consensus ablation across all six architectures. Faithfulness-weighted (FW) consensus is consistently above uniform averaging, and oracle top-$3$ consensus is higher still. Because top-$3$ uses sample-level insertion AUC for selection, it should be read as an upper-bound estimate for method curation rather than as a deployable inference protocol. Error bars indicate fold-level standard deviation.}}{9}{figure.4}\protected@file@percent }
+\newlabel{fig:consensus}{{4}{9}{CUB-200 consensus ablation across all six architectures. Faithfulness-weighted (FW) consensus is consistently above uniform averaging, and oracle top-$3$ consensus is higher still. Because top-$3$ uses sample-level insertion AUC for selection, it should be read as an upper-bound estimate for method curation rather than as a deployable inference protocol. Error bars indicate fold-level standard deviation}{figure.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces RSNA concept-intervention summary. The non-leaky CBM is the primary controlled ante-hoc baseline; the leaky CBM is reported only as an ablation because its strongest concept encodes pathology presence.}}{9}{table.4}\protected@file@percent }
+\newlabel{tab:cbm}{{4}{9}{RSNA concept-intervention summary. The non-leaky CBM is the primary controlled ante-hoc baseline; the leaky CBM is reported only as an ablation because its strongest concept encodes pathology presence}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Clinical Alignment and Concept Intervention}{9}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Negative and Diagnostic Results}{10}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{10}{section.5}\protected@file@percent }
+\bibdata{egbib}
+\bibcite{abnar2020quantifying}{{1}{2020}{{Abnar and Zuidema}}{{}}}
+\bibcite{adebayo2018sanity}{{2}{2018}{{Adebayo et~al.}}{{Adebayo, Gilmer, Muelly, Goodfellow, Hardt, and Kim}}}
+\bibcite{thackshanaramana2026hypothesis}{{3}{2026}{{B}}{{}}}
+\bibcite{chattopadhay2018gradcampp}{{4}{2018}{{Chattopadhay et~al.}}{{Chattopadhay, Sarkar, Howlader, and Balasubramanian}}}
+\bibcite{dosovitskiy2021image}{{5}{2021}{{Dosovitskiy et~al.}}{{Dosovitskiy, Beyer, Kolesnikov, Weissenborn, Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and Houlsby}}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Limitations}{11}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{11}{section.7}\protected@file@percent }
+\bibcite{ghassemi2021false}{{6}{2021}{{Ghassemi et~al.}}{{Ghassemi, Oakden-Rayner, and Beam}}}
+\bibcite{he2016resnet}{{7}{2016}{{He et~al.}}{{He, Zhang, Ren, and Sun}}}
+\bibcite{hedstrom2024latec}{{8}{2024}{{Hedstr{\"o}m et~al.}}{{Hedstr{\"o}m, Bommer, Wickstr{\o }m, Samek, Lapuschkin, and H{\"o}hne}}}
+\bibcite{huang2017densenet}{{9}{2017}{{Huang et~al.}}{{Huang, Liu, Van Der~Maaten, and Weinberger}}}
+\bibcite{koh2020concept}{{10}{2020}{{Koh et~al.}}{{Koh, Nguyen, Tang, Mussmann, Pierson, Kim, and Liang}}}
+\bibcite{krishna2022disagreement}{{11}{2022}{{Krishna et~al.}}{{Krishna, Han, Gu, Pombra, Jabbari, Wu, and Lakkaraju}}}
+\bibcite{liu2022convnet}{{12}{2022}{{Liu et~al.}}{{Liu, Mao, Wu, Feichtenhofer, Darrell, and Xie}}}
+\bibcite{rsna2024lumbar}{{13}{2024}{{Radiological Society of North America}}{{}}}
+\bibcite{selvaraju2017gradcam}{{14}{2017}{{Selvaraju et~al.}}{{Selvaraju, Cogswell, Das, Vedantam, Parikh, and Batra}}}
+\bibcite{simonyan2014deep}{{15}{2014}{{Simonyan et~al.}}{{Simonyan, Vedaldi, and Zisserman}}}
+\bibcite{sundararajan2017axiomatic}{{16}{2017}{{Sundararajan et~al.}}{{Sundararajan, Taly, and Yan}}}
+\bibcite{tan2019efficientnet}{{17}{2019}{{Tan and Le}}{{}}}
+\bibcite{touvron2021training}{{18}{2021}{{Touvron et~al.}}{{Touvron, Cord, Douze, Massa, Sablayrolles, and J{\'e}gou}}}
+\bibcite{wah2011cub}{{19}{2011}{{Wah et~al.}}{{Wah, Branson, Welinder, Perona, and Belongie}}}
+\bibcite{zeiler2014visualizing}{{20}{2014}{{Zeiler and Fergus}}{{}}}
+\gdef \BMVA@LastPage{13}
+\gdef \@abspage@last{13}

@@ -1,0 +1,163 @@
+{
+  "summary": {
+    "faithfulness": {
+      "gradcam": {
+        "deletion_auc": 0.5104291358813849,
+        "insertion_auc": 0.7791450435618705,
+        "deletion_auc_ci_lo": 0.4835,
+        "deletion_auc_ci_hi": 0.5365,
+        "insertion_auc_ci_lo": 0.756,
+        "insertion_auc_ci_hi": 0.8015
+      },
+      "gradcam++": {
+        "deletion_auc": 0.5516594633988183,
+        "insertion_auc": 0.7720810881533446,
+        "deletion_auc_ci_lo": 0.526,
+        "deletion_auc_ci_hi": 0.5784,
+        "insertion_auc_ci_lo": 0.7473,
+        "insertion_auc_ci_hi": 0.7965
+      },
+      "gradient_shap": {
+        "deletion_auc": 0.5478013177179577,
+        "insertion_auc": 0.6335429232823857,
+        "deletion_auc_ci_lo": 0.521,
+        "deletion_auc_ci_hi": 0.5727,
+        "insertion_auc_ci_lo": 0.6073,
+        "insertion_auc_ci_hi": 0.6604
+      },
+      "guided_backprop": {
+        "deletion_auc": 0.5601202981061457,
+        "insertion_auc": 0.558082592000108,
+        "deletion_auc_ci_lo": 0.5356,
+        "deletion_auc_ci_hi": 0.5852,
+        "insertion_auc_ci_lo": 0.5343,
+        "insertion_auc_ci_hi": 0.581
+      },
+      "integrated_gradients": {
+        "deletion_auc": 0.5405019894408373,
+        "insertion_auc": 0.5822523134850198,
+        "deletion_auc_ci_lo": 0.5155,
+        "deletion_auc_ci_hi": 0.5648,
+        "insertion_auc_ci_lo": 0.5574,
+        "insertion_auc_ci_hi": 0.6057
+      },
+      "occlusion": {
+        "deletion_auc": 0.5748462522110591,
+        "insertion_auc": 0.7345055813435465,
+        "deletion_auc_ci_lo": 0.5516,
+        "deletion_auc_ci_hi": 0.6008,
+        "insertion_auc_ci_lo": 0.7091,
+        "insertion_auc_ci_hi": 0.7609
+      }
+    },
+    "mean_spearman": 0.21380304666096067,
+    "mean_spearman_ci": [
+      0.2086,
+      0.2191
+    ],
+    "mean_top20_iou": 0.22684794322470106,
+    "mean_top20_iou_ci": [
+      0.2235,
+      0.2304
+    ],
+    "clinical_alignment_proxy": {
+      "gradcam": 0.25647497879579667,
+      "gradcam++": 0.2865420358914801,
+      "gradient_shap": 0.17561119272461553,
+      "guided_backprop": 0.16411008890565237,
+      "integrated_gradients": 0.1746372295362156,
+      "occlusion": 0.20255511267153486
+    },
+    "clinical_alignment_expert": {
+      "gradcam": 0.23814286715040603,
+      "gradcam++": 0.27070137349267803,
+      "gradient_shap": 0.15821925133466722,
+      "guided_backprop": 0.10957094737018148,
+      "integrated_gradients": 0.12835940219461917,
+      "occlusion": 0.15364201337719957
+    },
+    "clinical_alignment_by_condition": {
+      "gradcam": {
+        "left_neural_foraminal_narrowing": 0.23518084312478701,
+        "left_subarticular_stenosis": 0.21750234120214978,
+        "right_neural_foraminal_narrowing": 0.24508936156829197,
+        "right_subarticular_stenosis": 0.2378207209209601,
+        "spinal_canal_stenosis": 0.2551210689358413
+      },
+      "gradcam++": {
+        "left_neural_foraminal_narrowing": 0.26894899221758045,
+        "left_subarticular_stenosis": 0.2670621780057748,
+        "right_neural_foraminal_narrowing": 0.27103842571377756,
+        "right_subarticular_stenosis": 0.271535021563371,
+        "spinal_canal_stenosis": 0.27492224996288617
+      },
+      "gradient_shap": {
+        "left_neural_foraminal_narrowing": 0.13664648706714314,
+        "left_subarticular_stenosis": 0.17491235435009003,
+        "right_neural_foraminal_narrowing": 0.14054757120708625,
+        "right_subarticular_stenosis": 0.17136909775435924,
+        "spinal_canal_stenosis": 0.1676207462946574
+      },
+      "guided_backprop": {
+        "left_neural_foraminal_narrowing": 0.1140597472898662,
+        "left_subarticular_stenosis": 0.1142977986484766,
+        "right_neural_foraminal_narrowing": 0.11715242732316256,
+        "right_subarticular_stenosis": 0.11447996230175098,
+        "spinal_canal_stenosis": 0.08786480128765106
+      },
+      "integrated_gradients": {
+        "left_neural_foraminal_narrowing": 0.11961355314900478,
+        "left_subarticular_stenosis": 0.1384059188266595,
+        "right_neural_foraminal_narrowing": 0.1195935532450676,
+        "right_subarticular_stenosis": 0.14321061124404272,
+        "spinal_canal_stenosis": 0.12097337450832128
+      },
+      "occlusion": {
+        "left_neural_foraminal_narrowing": 0.15682426461329063,
+        "left_subarticular_stenosis": 0.15761552887658278,
+        "right_neural_foraminal_narrowing": 0.1529411744326353,
+        "right_subarticular_stenosis": 0.1515839941178759,
+        "spinal_canal_stenosis": 0.14924510484561324
+      }
+    },
+    "consensus_insertion_auc_mean": 0.8626970564946532,
+    "consensus_expert_roi_mean": 0.2536524618665377,
+    "fw_consensus_insertion_auc_mean": 0.8626970564946532,
+    "fw_consensus_expert_roi_mean": 0.2536524618665377,
+    "uniform_consensus_insertion_auc_mean": 0.8596510609922309,
+    "uniform_consensus_expert_roi_mean": 0.25357295845945677,
+    "topk_consensus_insertion_auc_mean": 0.8726085377670824,
+    "topk_consensus_expert_roi_mean": 0.25019408091902734
+  },
+  "skipped": {},
+  "args": {
+    "config": "/kaggle/working/spinexnet-code/configs/baselines/efficientnet_b4.yaml",
+    "checkpoint": "/kaggle/input/datasets/shilpavdesai/train-eval-xai-efficientnet-b4-models/outputs/baseline_efficientnet_b4/fold_1/best.pt",
+    "manifest": "/kaggle/input/datasets/vasuaashadesai/manifests-of-spinexnet/manifests/manifest_v2.csv",
+    "fold": 1,
+    "output_dir": "/kaggle/working/v4_repair_rsna/combined_xai_multifold/fold_1/efficientnet_b4",
+    "max_samples": 300,
+    "methods": [
+      "gradcam",
+      "gradcam++",
+      "integrated_gradients",
+      "gradient_shap",
+      "occlusion",
+      "guided_backprop"
+    ],
+    "faithfulness_steps": 20,
+    "gradient_baseline_mode": "mean",
+    "faithfulness_baseline_mode": "mean",
+    "crop_root": null,
+    "cache_dir": "/kaggle/input/datasets/vasuaashadesai/pre-processed-crop-224/image_cache_224",
+    "save_maps": false,
+    "consistency_augmentations": 3,
+    "skip_consistency": true,
+    "skip_faithfulness": false,
+    "skip_consensus": false,
+    "consensus_every": 10,
+    "consensus_temperature": 1.0,
+    "topk_consensus_methods": 3,
+    "enable_attention_rollout": false
+  }
+}
